@@ -2,6 +2,11 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   nitro: {
+    esbuild: {
+      options: {
+        target: 'esnext',
+      },
+    },
     prerender: {
       routes: ['/'],
     },
@@ -16,6 +21,24 @@ export default defineNuxtConfig({
       name: 'Cash Register',
       short_name: 'CashRegister',
       theme_color: '#ffffff',
+      icons: [
+        {
+          src: 'pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: 'pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable',
+        },
+      ],
     },
     workbox: {
       navigateFallback: '/',
@@ -24,6 +47,12 @@ export default defineNuxtConfig({
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
     },
   },
 })
