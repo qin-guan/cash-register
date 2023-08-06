@@ -9,8 +9,12 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^0.40.0",
     "@nuxt/devtools": "latest",
+    "@nuxthq/ui": "^2.7.0",
     "@types/node": "^18.17.1",
+    "@vite-pwa/nuxt": "^0.1.0",
+    "eslint": "^8.46.0",
     "nuxt": "^3.6.5"
   }
 }
