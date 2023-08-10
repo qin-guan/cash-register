@@ -5,7 +5,7 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3'
 import Database from 'better-sqlite3'
 
-import { isDevelopment } from 'std-env'
+import { isCI, isDevelopment } from 'std-env'
 
 declare module 'h3' {
   interface H3EventContext {
@@ -14,7 +14,7 @@ declare module 'h3' {
 }
 
 export default defineEventHandler((event) => {
-  if (isDevelopment) {
+  if (isDevelopment || isCI) {
     // The database instance is recreated on every request to simulate the actual Cloudflare Workers environment, this may or may not be a bad idea
     const sqlite = new Database(useRuntimeConfig().dev.sqliteFileName)
     event.context.database = drizzleSqlite(sqlite)
