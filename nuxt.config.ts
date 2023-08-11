@@ -11,10 +11,12 @@ export default defineNuxtConfig({
       routes: ['/'],
     },
   },
+
   modules: [
     '@vite-pwa/nuxt',
     '@nuxthq/ui',
   ],
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -53,6 +55,12 @@ export default defineNuxtConfig({
       suppressWarnings: true,
       navigateFallbackAllowlist: [/^\/$/],
       type: 'module',
+    },
+  },
+
+  runtimeConfig: {
+    dev: {
+      sqliteFileName: 'sqlite.db',
     },
   },
 })
