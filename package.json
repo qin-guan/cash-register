@@ -9,17 +9,17 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.40.0",
+    "@antfu/eslint-config": "^0.40.2",
     "@nuxt/devtools": "latest",
     "@nuxthq/ui": "^2.7.0",
     "@types/better-sqlite3": "^7.6.4",
-    "@types/node": "^18.17.1",
+    "@types/node": "^20.5.1",
     "@vite-pwa/nuxt": "^0.1.0",
-    "better-sqlite3": "^8.5.0",
-    "drizzle-kit": "^0.19.12",
-    "drizzle-orm": "^0.27.2",
-    "eslint": "^8.46.0",
+    "better-sqlite3": "^8.5.1",
+    "drizzle-kit": "^0.19.13",
+    "drizzle-orm": "^0.28.2",
+    "eslint": "^8.47.0",
     "nuxt": "^3.6.5",
-    "std-env": "^3.3.3"
+    "std-env": "^3.4.0"
   }
 }
