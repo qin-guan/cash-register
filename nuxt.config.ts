@@ -49,9 +49,9 @@ export default defineNuxtConfig({
     },
     devOptions: {
       enabled: true,
-      // suppressWarnings: true,
-      // navigateFallbackAllowlist: [/^\/$/],
-      // type: 'module',
+      suppressWarnings: true,
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
     },
   },
 
