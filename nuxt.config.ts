@@ -7,9 +7,6 @@ export default defineNuxtConfig({
         target: 'esnext',
       },
     },
-    prerender: {
-      routes: ['/'],
-    },
   },
 
   modules: [
