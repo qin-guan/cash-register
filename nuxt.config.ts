@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     '@nuxthq/ui',
   ],
 
+  tailwindcss: {
+    exposeConfig: true,
+  },
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -59,5 +63,9 @@ export default defineNuxtConfig({
     dev: {
       sqliteFileName: 'sqlite.db',
     },
+  },
+
+  typescript: {
+    strict: true,
   },
 })
