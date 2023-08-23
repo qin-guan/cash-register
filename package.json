@@ -9,7 +9,7 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.40.2",
+    "@antfu/eslint-config": "^0.41.0",
     "@nuxt/devtools": "latest",
     "@nuxthq/ui": "^2.7.0",
     "@types/better-sqlite3": "^7.6.4",
