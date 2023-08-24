@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+
   nitro: {
     esbuild: {
       options: {
@@ -10,12 +11,25 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@vueuse/nuxt',
     '@vite-pwa/nuxt',
     '@nuxthq/ui',
   ],
 
+  build: {
+    transpile: [
+      'trpc-nuxt',
+    ],
+  },
+
   tailwindcss: {
     exposeConfig: true,
+  },
+
+  ui: {
+    icons: [
+      'tabler',
+    ],
   },
 
   pwa: {
@@ -52,9 +66,7 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: true,
-      suppressWarnings: true,
-      navigateFallbackAllowlist: [/^\/$/],
+      enabled: process.env.VITE_DEV_PWA === 'true',
       type: 'module',
     },
   },
