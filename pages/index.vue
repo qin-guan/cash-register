@@ -9,9 +9,7 @@ const { data: onboarding, pending, error } = await $client.onboarding.status.use
       <!-- TODO some skeleton here -->
     </div>
     <template v-else>
-      <div v-if="!onboarding?.completed">
-        <LazyOnboardingSetup />
-      </div>
+      <LazyOnboardingSetup v-if="!onboarding?.completed" />
 
       <div v-else class="items-center justify-center flex h-full flex-col space-y-10">
         <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight text-center">

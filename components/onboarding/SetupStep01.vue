@@ -7,10 +7,10 @@ function create() {
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
     <div class="space-y-6">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+      <h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         Create a new user
       </h1>
-      <p className="leading-7 text-neutral-400">
+      <p class="leading-7 text-neutral-400">
         This user will have full permissions. You can create more users later.
       </p>
     </div>

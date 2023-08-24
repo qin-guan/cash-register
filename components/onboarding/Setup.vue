@@ -1,8 +1,28 @@
 <script setup lang="ts">
-const step = useLocalStorage('onboarding-step', -1)
+import Step01 from './SetupStep01.vue'
+
+const router = useRouter()
+
+const step = computed({
+  get() {
+    try {
+      return Number.parseInt(router.currentRoute.value.query.step as string ?? '-1')
+    }
+    catch {
+      return -1
+    }
+  },
+  set(value: number) {
+    router.push({
+      query: {
+        step: value,
+      },
+    })
+  },
+})
 
 const steps = [
-  defineAsyncComponent(() => import('./SetupStep01.vue')),
+  Step01,
 ]
 </script>
 
@@ -45,7 +65,7 @@ const steps = [
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateX(20px);
 }
 
 .v-leave-active {

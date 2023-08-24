@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -14,6 +16,8 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
     '@nuxthq/ui',
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/fontaine',
   ],
 
   build: {
@@ -24,12 +28,27 @@ export default defineNuxtConfig({
 
   tailwindcss: {
     exposeConfig: true,
+    config: {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Inter fallback', ...defaultTheme.fontFamily.sans],
+          },
+        },
+      },
+    },
   },
 
   ui: {
     icons: [
       'tabler',
     ],
+  },
+
+  googleFonts: {
+    families: {
+      Inter: true,
+    },
   },
 
   pwa: {
