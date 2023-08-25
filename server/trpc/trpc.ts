@@ -8,9 +8,11 @@
  * @see https://trpc.io/docs/v10/procedures
  */
 
-import { initTRPC } from '@trpc/server'
+import { TRPCError, initTRPC } from '@trpc/server'
 import superjson from 'superjson'
 
+import { eq } from 'drizzle-orm'
+import { users } from '../db/schema'
 import type { Context } from './context'
 import type { Meta } from './meta'
 
@@ -21,31 +23,21 @@ const t = initTRPC
     transformer: superjson,
   })
 
-// const authMiddleware = t.middleware(async ({ next, ctx, meta }) => {
-//   if (!ctx.session.data.id)
-//     throw new TRPCError({ code: 'UNAUTHORIZED' })
+const authMiddleware = t.middleware(async ({ next, ctx, meta }) => {
+  const session = await ctx.authRequest.validate()
+  if (!session)
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
 
-//   const user = await ctx.prisma.user.findUnique({
-//     where: { id: ctx.session.data.id },
-//     select: defaultUserSelect,
-//   })
+  const res = await ctx.database.select().from(users).where(eq(users.username, session.user.username))
+  if (res.length === 0)
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
 
-//   if (user === null)
-//     throw new TRPCError({ code: 'UNAUTHORIZED' })
-
-//   if (meta?.admin && !user.admin)
-//     throw new TRPCError({ code: 'FORBIDDEN' })
-
-//   // If user is logged in, replace original session data with user session.
-//   // Modifying session data is usually not done.
-//   return next({
-//     ctx: {
-//       session: {
-//         user,
-//       },
-//     },
-//   })
-// })
+  return next({
+    ctx: {
+      user: res[0],
+    },
+  })
+})
 
 /**
  * Unprotected procedure
@@ -56,7 +48,7 @@ export const publicProcedure = t.procedure
  * Create a protected procedure
  **/
 export const protectedProcedure = t.procedure
-// .use(authMiddleware)
+  .use(authMiddleware)
 
 export const router = t.router
 export const middleware = t.middleware

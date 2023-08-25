@@ -1,6 +1,12 @@
 <script setup lang="ts">
-function create() {
+const { $client } = useNuxtApp()
 
+async function create(event: Event) {
+  const formData = new FormData(event.currentTarget as HTMLFormElement)
+  await $client.onboarding.createInitialUser.mutate({
+    username: formData.get('username') as string,
+    password: formData.get('password') as string,
+  })
 }
 </script>
 
@@ -17,10 +23,10 @@ function create() {
 
     <form class="space-y-4" @submit.prevent="create">
       <UFormGroup label="Username">
-        <UInput placeholder="rickastley" />
+        <UInput name="username" placeholder="rickastley" />
       </UFormGroup>
       <UFormGroup label="Password">
-        <UInput type="password" />
+        <UInput name="password" type="password" />
       </UFormGroup>
       <br>
       <UButton type="submit">

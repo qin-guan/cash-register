@@ -1,6 +1,8 @@
 declare namespace Lucia {
-  interface DatabaseUserAttributes {
-    username: string
-  }
-  interface DatabaseSessionAttributes {}
+  // TODO kind of hacky
+  type Auth = import('./middleware/2.auth').Lucia
+	type DatabaseUserAttributes = {
+		username: string;
+	};
+	type DatabaseSessionAttributes = {};
 }

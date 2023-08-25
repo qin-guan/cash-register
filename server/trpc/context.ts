@@ -5,6 +5,7 @@ import type { Storage } from 'unstorage'
 import type { AppConfig } from 'nuxt/schema'
 import type { DrizzleD1Database } from 'drizzle-orm/d1'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
+import type { AuthRequest, Session } from 'lucia'
 
 /**
  * Defines your inner context shape.
@@ -23,6 +24,10 @@ interface CreateInnerContextOptions {
 
   // Database
   database: DrizzleD1Database | BetterSQLite3Database
+
+  // Auth
+  auth: Omit<Lucia.Auth, 'handleRequest'>
+  authRequest: AuthRequest<Lucia.Auth>
 }
 
 /**
@@ -51,6 +56,8 @@ export async function createContext(_event: H3Event) {
     cache: _event.context.cache,
     config: useAppConfig(),
     database: _event.context.database,
+    auth: _event.context.auth,
+    authRequest: _event.context.auth.handleRequest(_event),
   })
 
   return {

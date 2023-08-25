@@ -10,6 +10,7 @@ export default defineNuxtConfig({
         target: 'esnext',
       },
     },
+    moduleSideEffects: ['lucia/polyfill/node'],
   },
 
   modules: [

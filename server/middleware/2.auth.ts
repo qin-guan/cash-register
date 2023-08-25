@@ -2,6 +2,9 @@ import type { H3Event } from 'h3'
 import { lucia as _lucia } from 'lucia'
 import { h3 } from 'lucia/middleware'
 import { betterSqlite3, d1 } from '@lucia-auth/adapter-sqlite'
+import 'lucia/polyfill/node'
+
+export type Lucia = ReturnType<typeof lucia>
 
 const config = {
   user: 'users',
@@ -11,7 +14,7 @@ const config = {
 
 declare module 'h3' {
   interface H3EventContext {
-    auth: ReturnType<typeof lucia>
+    auth: Lucia
   }
 }
 
@@ -23,6 +26,10 @@ function lucia(event: H3Event) {
 
     env: event.context.rawDatabase.cloudflare ? 'PROD' : 'DEV',
     middleware: h3(),
+
+    getUserAttributes: data => ({
+      username: data.username,
+    }),
   })
 }
 

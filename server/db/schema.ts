@@ -1,12 +1,13 @@
-import type { InferModel } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm'
 import { blob, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
-  id: integer('id').primaryKey(),
+  id: text('id').primaryKey(),
+  username: text('username').notNull().unique(),
   name: text('name'),
 })
 
-export type Users = InferModel<typeof users>
+export type Users = InferSelectModel<typeof users>
 
 export const sessions = sqliteTable('user_sessions', {
   id: text('id').primaryKey(),
@@ -21,7 +22,7 @@ export const sessions = sqliteTable('user_sessions', {
   }).notNull(),
 })
 
-export type Sessions = InferModel<typeof sessions>
+export type Sessions = InferSelectModel<typeof sessions>
 
 export const keys = sqliteTable('user_keys', {
   id: text('id').primaryKey(),
@@ -31,4 +32,4 @@ export const keys = sqliteTable('user_keys', {
   hashedPassword: text('hashed_password'),
 })
 
-export type Keys = InferModel<typeof keys>
+export type Keys = InferSelectModel<typeof keys>
