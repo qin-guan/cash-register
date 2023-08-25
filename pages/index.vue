@@ -5,6 +5,9 @@ const { data: onboarding, pending, error } = await $client.onboarding.status.use
 
 <template>
   <UContainer>
+    {{ onboarding }}
+    {{ pending }}
+    {{ error }}
     <div v-if="pending">
       <!-- TODO some skeleton here -->
     </div>

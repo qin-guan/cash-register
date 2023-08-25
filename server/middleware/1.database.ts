@@ -24,8 +24,6 @@ declare module 'h3' {
 }
 
 export default defineEventHandler((event) => {
-  console.log("ran middleware", event, event.context)
-  console.log("has cloudflare context", !!event.context.cloudflare)
   if (event.context.cloudflare) {
     event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
     event.context.rawDatabase = {

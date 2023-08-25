@@ -60,8 +60,6 @@ export async function createContext(_event: H3Event) {
     authRequest: _event.context.auth.handleRequest(_event),
   })
 
-  console.log("test", contextInner)
-
   return {
     ...contextInner,
     // Other outer context values as needed

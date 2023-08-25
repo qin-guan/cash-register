@@ -3,7 +3,7 @@ import { lucia as _lucia } from 'lucia'
 import { h3 } from 'lucia/middleware'
 import { betterSqlite3, d1 } from '@lucia-auth/adapter-sqlite'
 
-// import 'lucia/polyfill/node'
+import 'lucia/polyfill/node'
 
 export type Lucia = ReturnType<typeof lucia>
 
@@ -36,5 +36,4 @@ function lucia(event: H3Event) {
 
 export default defineEventHandler((event) => {
   event.context.auth = lucia(event)
-  console.log("passed lucia")
 })
