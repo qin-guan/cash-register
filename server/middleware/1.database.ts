@@ -23,25 +23,35 @@ declare module 'h3' {
   }
 }
 
+let database: DrizzleD1Database | BetterSQLite3Database
+let rawDatabase: RawDatabase
+
 export default defineEventHandler((event) => {
   console.log('database registered', event.context)
-  if (event.context.cloudflare) {
+
+  if (database) {
+    console.log("using existing")
+    event.context.database = database
+    event.context.rawDatabase = rawDatabase
+  }
+  else {
+      if (event.context.cloudflare) {
     console.log('cloudflare registered')
-    event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
-    event.context.rawDatabase = {
+    database = event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
+    rawDatabase = event.context.rawDatabase = {
       cloudflare: true,
       connection: event.context.cloudflare.env.DATABASE,
     }
-    event.context.cloudflare = event.context.cloudflare
   }
   else {
     console.log('sqlite registered')
     // The database instance is recreated on every request to simulate the actual Cloudflare Workers environment, this may or may not be a bad idea
     const sqlite = new Database(useRuntimeConfig().dev.sqliteFileName)
-    event.context.database = drizzleSqlite(sqlite)
-    event.context.rawDatabase = {
+    database = event.context.database = drizzleSqlite(sqlite)
+    rawDatabase = event.context.rawDatabase = {
       cloudflare: false,
       connection: sqlite,
     }
+  }
   }
 })
