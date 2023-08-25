@@ -26,6 +26,7 @@ declare module 'h3' {
 export default defineEventHandler((event) => {
   console.log('database registered')
   if (event.context.cloudflare) {
+    console.log('cloudflare registered')
     event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
     event.context.rawDatabase = {
       cloudflare: true,
@@ -33,6 +34,7 @@ export default defineEventHandler((event) => {
     }
   }
   else {
+    console.log('sqlite registered')
     // The database instance is recreated on every request to simulate the actual Cloudflare Workers environment, this may or may not be a bad idea
     const sqlite = new Database(useRuntimeConfig().dev.sqliteFileName)
     event.context.database = drizzleSqlite(sqlite)
