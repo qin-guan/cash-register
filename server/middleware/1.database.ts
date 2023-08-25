@@ -24,7 +24,7 @@ declare module 'h3' {
 }
 
 export default defineEventHandler((event) => {
-  console.log('database registered')
+  console.log('database registered', event.context)
   if (event.context.cloudflare) {
     console.log('cloudflare registered')
     event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
