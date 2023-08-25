@@ -36,4 +36,5 @@ function lucia(event: H3Event) {
 
 export default defineEventHandler((event) => {
   event.context.auth = lucia(event)
+  console.log("passed lucia")
 })
