@@ -23,35 +23,32 @@ declare module 'h3' {
   }
 }
 
+// Need to keep local copy of database instances because
+// requests sent during SSR do not have a copy of the
+// Cloudflare request context
 let database: DrizzleD1Database | BetterSQLite3Database
 let rawDatabase: RawDatabase
 
 export default defineEventHandler((event) => {
-  console.log('database registered', event.context)
-
   if (database) {
-    console.log("using existing")
     event.context.database = database
     event.context.rawDatabase = rawDatabase
   }
   else {
-      if (event.context.cloudflare) {
-    console.log('cloudflare registered')
-    database = event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
-    rawDatabase = event.context.rawDatabase = {
-      cloudflare: true,
-      connection: event.context.cloudflare.env.DATABASE,
+    if (event.context.cloudflare) {
+      database = event.context.database = drizzleD1(event.context.cloudflare.env.DATABASE)
+      rawDatabase = event.context.rawDatabase = {
+        cloudflare: true,
+        connection: event.context.cloudflare.env.DATABASE,
+      }
     }
-  }
-  else {
-    console.log('sqlite registered')
-    // The database instance is recreated on every request to simulate the actual Cloudflare Workers environment, this may or may not be a bad idea
-    const sqlite = new Database(useRuntimeConfig().dev.sqliteFileName)
-    database = event.context.database = drizzleSqlite(sqlite)
-    rawDatabase = event.context.rawDatabase = {
-      cloudflare: false,
-      connection: sqlite,
+    else {
+      const sqlite = new Database(useRuntimeConfig().dev.sqliteFileName)
+      database = event.context.database = drizzleSqlite(sqlite)
+      rawDatabase = event.context.rawDatabase = {
+        cloudflare: false,
+        connection: sqlite,
+      }
     }
-  }
   }
 })
