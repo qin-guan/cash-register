@@ -2,7 +2,8 @@ import type { H3Event } from 'h3'
 import { lucia as _lucia } from 'lucia'
 import { h3 } from 'lucia/middleware'
 import { betterSqlite3, d1 } from '@lucia-auth/adapter-sqlite'
-import 'lucia/polyfill/node'
+
+// import 'lucia/polyfill/node'
 
 export type Lucia = ReturnType<typeof lucia>
 

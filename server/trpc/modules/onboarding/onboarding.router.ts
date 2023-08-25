@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { protectedProcedure, publicProcedure, router } from '../../trpc'
+import { publicProcedure, router } from '../../trpc'
 import { users } from '~/server/db/schema'
 
 export const onboardingRouter = router({
