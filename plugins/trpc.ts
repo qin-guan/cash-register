@@ -13,7 +13,9 @@ export default defineNuxtPlugin({
     const client = createTRPCNuxtClient<AppRouter>({
       transformer: superjson,
       links: [
-        httpBatchLink(),
+        httpBatchLink({
+          url: '/api/trpc',
+        }),
       ],
     })
 
