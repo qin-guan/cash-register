@@ -3,6 +3,7 @@ import defaultTheme from 'tailwindcss/defaultTheme'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  ssr: false,
 
   nitro: {
     esbuild: {
