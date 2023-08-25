@@ -4,6 +4,7 @@ import defaultTheme from 'tailwindcss/defaultTheme'
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
+  spaLoadingTemplate: false,
 
   nitro: {
     esbuild: {

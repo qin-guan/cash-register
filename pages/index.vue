@@ -1,13 +1,10 @@
 <script setup lang="ts">
 const { $client } = useNuxtApp()
-const { data: onboarding, pending, error } = await $client.onboarding.status.useLazyQuery()
+const { data: onboarding, pending } = await $client.onboarding.status.useLazyQuery()
 </script>
 
 <template>
   <UContainer>
-    {{ onboarding }}
-    {{ pending }}
-    {{ error }}
     <div v-if="pending">
       <!-- TODO some skeleton here -->
     </div>
