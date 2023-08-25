@@ -32,6 +32,7 @@ export default defineEventHandler((event) => {
       cloudflare: true,
       connection: event.context.cloudflare.env.DATABASE,
     }
+    event.context.cloudflare = event.context.cloudflare
   }
   else {
     console.log('sqlite registered')
