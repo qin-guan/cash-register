@@ -40,6 +40,7 @@
     "std-env": "^3.4.3",
     "superjson": "^1.13.1",
     "trpc-nuxt": "^0.10.11",
+    "vue-tsc": "^1.8.8",
     "zod": "^3.22.2"
   },
   "simple-git-hooks": {
