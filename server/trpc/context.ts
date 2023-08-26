@@ -5,7 +5,7 @@ import type { Storage } from 'unstorage'
 import type { AppConfig } from 'nuxt/schema'
 import type { DrizzleD1Database } from 'drizzle-orm/d1'
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import type { AuthRequest, Session } from 'lucia'
+import type { AuthRequest } from 'lucia'
 
 /**
  * Defines your inner context shape.
