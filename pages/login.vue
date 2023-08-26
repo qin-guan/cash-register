@@ -3,7 +3,7 @@ import { z } from 'zod'
 import type { TRPCClientError } from '~/shared/types'
 
 definePageMeta({
-  middleware: ['auth'],
+  middleware: ['onboarding'],
 })
 
 const { $client } = useNuxtApp()
@@ -47,6 +47,7 @@ async function login(event: Event) {
 
   try {
     await $client.auth.login.mutate(result.data)
+    navigateTo('/')
   }
   catch (_err) {
     const err = _err as TRPCClientError
