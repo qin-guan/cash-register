@@ -1,25 +1,22 @@
 <script setup lang="ts">
-const { $client } = useNuxtApp()
-const { data: onboarding, pending } = await $client.onboarding.status.useLazyQuery()
+definePageMeta({
+  middleware: ['onboarding'],
+})
 </script>
 
 <template>
-  <UContainer>
-    <div v-if="pending">
-      <!-- TODO some skeleton here -->
-    </div>
-    <template v-else>
-      <LazyOnboardingSetup v-if="!onboarding?.completed" />
-
-      <div v-else class="items-center justify-center flex h-full flex-col space-y-10">
-        <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight text-center">
-          Imagine a nice landing page here
-        </h1>
-
-        <UButton to="/login">
-          Login
-        </UButton>
-      </div>
-    </template>
-  </UContainer>
+  <div>
+    <header class="bg-background/75 backdrop-blur border-b border-neutral-200 dark:border-neutral-800 -mb-px sticky top-0 z-50">
+      <UContainer class="py-4">
+        <NuxtLink to="/" class="font-bold text-sm">
+          Cash Register
+        </NuxtLink>
+      </UContainer>
+    </header>
+    <main>
+      <UContainer>
+        Nothing here yet...
+      </UContainer>
+    </main>
+  </div>
 </template>

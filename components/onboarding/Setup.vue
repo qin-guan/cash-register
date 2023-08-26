@@ -24,6 +24,13 @@ const step = computed({
 const steps = [
   Step01,
 ]
+
+function done() {
+  if (step.value === steps.length - 1)
+    router.push('/login')
+  else
+    step.value++
+}
 </script>
 
 <template>
@@ -50,7 +57,7 @@ const steps = [
         </UButton>
       </div>
 
-      <component :is="steps[step]" v-else />
+      <component :is="steps[step]" v-else @done="done" />
     </Transition>
   </section>
 </template>

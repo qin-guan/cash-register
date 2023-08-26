@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { FetchError } from 'ofetch'
 import { z } from 'zod'
+import type { TRPCClientError } from '~/shared/types'
+
+definePageMeta({
+  middleware: ['auth'],
+})
+
+const { $client } = useNuxtApp()
 
 const schema = z.object({
   username: z.string().nonempty('Username must not be empty'),
@@ -40,16 +46,11 @@ async function login(event: Event) {
   }
 
   try {
-    const data = await $fetch('/api/auth/login', {
-      method: 'POST',
-      body: result.data,
-    })
+    await $client.auth.login.mutate(result.data)
   }
-  catch (err) {
-    if (err instanceof FetchError)
-      state.value.error.password = err.data.message
-
-    state.value.error.password = JSON.stringify(err)
+  catch (_err) {
+    const err = _err as TRPCClientError
+    state.value.error.password = err.message
   }
   finally {
     state.value.pending = false
@@ -58,7 +59,7 @@ async function login(event: Event) {
 </script>
 
 <template>
-  <UContainer class="h-full flex items-center justify-center flex-col space-y-8 mb-10">
+  <UContainer class="h-full flex items-center justify-center flex-col space-y-8 pb-10">
     <span class="font-semibold dark:text-white text-neutral-900 text-xl">
       Login to Cash Register
     </span>
