@@ -1,18 +1,56 @@
+import defaultTheme from 'tailwindcss/defaultTheme'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+
   nitro: {
     esbuild: {
       options: {
         target: 'esnext',
       },
     },
+    moduleSideEffects: ['lucia/polyfill/node'],
   },
 
   modules: [
+    '@vueuse/nuxt',
     '@vite-pwa/nuxt',
     '@nuxthq/ui',
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/fontaine',
   ],
+
+  build: {
+    transpile: [
+      'trpc-nuxt',
+    ],
+  },
+
+  tailwindcss: {
+    exposeConfig: true,
+    config: {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Inter fallback', ...defaultTheme.fontFamily.sans],
+          },
+        },
+      },
+    },
+  },
+
+  ui: {
+    icons: [
+      'tabler',
+    ],
+  },
+
+  googleFonts: {
+    families: {
+      Inter: [400, 600, 800],
+    },
+  },
 
   pwa: {
     registerType: 'autoUpdate',
@@ -48,9 +86,7 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: true,
-      suppressWarnings: true,
-      navigateFallbackAllowlist: [/^\/$/],
+      enabled: process.env.VITE_DEV_PWA === 'true',
       type: 'module',
     },
   },
@@ -59,5 +95,9 @@ export default defineNuxtConfig({
     dev: {
       sqliteFileName: 'sqlite.db',
     },
+  },
+
+  typescript: {
+    strict: true,
   },
 })
