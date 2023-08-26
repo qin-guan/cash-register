@@ -34,7 +34,7 @@
     "eslint": "^8.47.0",
     "lint-staged": "^14.0.1",
     "lucia": "^2.4.0",
-    "nuxt": "^3.6.5",
+    "nuxt": "^3.7.0",
     "pino": "^8.15.0",
     "simple-git-hooks": "^2.9.0",
     "std-env": "^3.4.3",

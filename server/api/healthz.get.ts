@@ -6,8 +6,9 @@ export default defineLazyEventHandler(() => eventHandler(async (event) => {
     return { ok: true, now: new Date() }
   }
   catch (err) {
-    return createError({
-      status: 500,
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
     })
   }
 }))
