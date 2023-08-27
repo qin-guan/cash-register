@@ -1,13 +1,1 @@
-{
-  "version": "5",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1691306551386,
-      "tag": "0000_violet_stingray",
-      "breakpoints": true
-    }
-  ]
-}
+{ "version": "5", "dialect": "sqlite", "entries": [{ "idx": 0, "version": "5", "when": 1691306551386, "tag": "0000_violet_stingray", "breakpoints": true }, { "idx": 1, "version": "5", "when": 1692776975892, "tag": "0001_blue_nuke", "breakpoints": true }, { "idx": 2, "version": "5", "when": 1692896798300, "tag": "0002_chilly_golden_guardian", "breakpoints": true }, { "idx": 3, "version": "5", "when": 1692932067010, "tag": "0003_shocking_unus", "breakpoints": true }] }

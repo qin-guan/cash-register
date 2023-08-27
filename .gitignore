@@ -24,3 +24,6 @@ logs
 
 # SQLite files
 *.db
+
+# ESLint
+.eslintcache
