@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm'
+
 import { defineLazyEventHandler } from '#imports'
 
 export default defineLazyEventHandler(() => eventHandler(async (event) => {

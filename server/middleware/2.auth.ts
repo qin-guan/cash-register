@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { lucia as _lucia } from 'lucia'
 import { h3 } from 'lucia/middleware'
 import { betterSqlite3, d1 } from '@lucia-auth/adapter-sqlite'
+
 import { defineEventHandler } from '#imports'
 
 import 'lucia/polyfill/node'
