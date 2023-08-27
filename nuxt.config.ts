@@ -63,4 +63,8 @@ export default defineNuxtConfig({
       sqliteFileName: 'sqlite.db',
     },
   },
+
+  imports: {
+    autoImport: false
+  },
 })

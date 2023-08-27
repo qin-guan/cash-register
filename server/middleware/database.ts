@@ -7,6 +7,8 @@ import Database from 'better-sqlite3'
 
 import { isCI, isDevelopment } from 'std-env'
 
+import { defineEventHandler, useRuntimeConfig } from '#imports'
+
 declare module 'h3' {
   interface H3EventContext {
     database: DrizzleD1Database | BetterSQLite3Database
