@@ -39,7 +39,7 @@
     "pino": "^8.15.0",
     "simple-git-hooks": "^2.9.0",
     "std-env": "^3.4.3",
-    "superjson": "^1.13.1",
+    "superjson": "^2.0.0",
     "trpc-nuxt": "^0.10.11",
     "vue-tsc": "^1.8.8",
     "zod": "^3.22.2"
