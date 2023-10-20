@@ -7,9 +7,9 @@ export default defineNuxtPlugin({
     const { default: superjson } = await import('superjson')
 
     /**
-   * createTRPCNuxtClient adds a `useQuery` composable
-   * built on top of `useAsyncData`.
-   */
+     * createTRPCNuxtClient adds a `useQuery` composable
+     * built on top of `useAsyncData`.
+     */
     const client = createTRPCNuxtClient<AppRouter>({
       transformer: superjson,
       links: [

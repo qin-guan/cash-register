@@ -23,7 +23,7 @@ const t = initTRPC
     transformer: superjson,
   })
 
-const authMiddleware = t.middleware(async ({ next, ctx, meta }) => {
+const authMiddleware = t.middleware(async ({ next, ctx }) => {
   const session = await ctx.authRequest.validate()
   if (!session)
     throw new TRPCError({ code: 'UNAUTHORIZED' })
@@ -41,12 +41,12 @@ const authMiddleware = t.middleware(async ({ next, ctx, meta }) => {
 
 /**
  * Unprotected procedure
- **/
+ */
 export const publicProcedure = t.procedure
 
 /**
  * Create a protected procedure
- **/
+ */
 export const protectedProcedure = t.procedure
   .use(authMiddleware)
 
