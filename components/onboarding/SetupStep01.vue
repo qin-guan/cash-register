@@ -8,8 +8,8 @@ const { $client } = useNuxtApp()
 const toast = useToast()
 
 const schema = z.object({
-  username: z.string().nonempty('Username must not be empty'),
-  password: z.string().nonempty('Password must not be empty'),
+  username: z.string().min(1, 'Username must not be empty'),
+  password: z.string().min(1, 'Password must not be empty'),
 })
 
 const state = ref<{

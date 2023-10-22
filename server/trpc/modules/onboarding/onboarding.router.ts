@@ -23,8 +23,8 @@ export const onboardingRouter = router({
       return next()
     })
     .input(z.object({
-      username: z.string().nonempty(),
-      password: z.string().nonempty().min(8),
+      username: z.string().min(1),
+      password: z.string().min(8),
     }))
     .mutation(async ({ ctx, input }) => {
       try {
