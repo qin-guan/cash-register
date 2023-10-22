@@ -38,7 +38,7 @@
     "framework7-vue": "^8.3.0",
     "lint-staged": "^15.0.2",
     "lucia": "^2.7.1",
-    "nuxt": "^3.7.4",
+    "nuxt": "^3.8.0",
     "pino": "^8.16.0",
     "simple-git-hooks": "^2.9.0",
     "std-env": "^3.4.3",

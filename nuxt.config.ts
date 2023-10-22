@@ -4,6 +4,11 @@ import defaultTheme from 'tailwindcss/defaultTheme'
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  experimental: {
+    // https://github.com/unjs/nitro/issues/1844
+    appManifest: false,
+  },
+
   nitro: {
     esbuild: {
       options: {
