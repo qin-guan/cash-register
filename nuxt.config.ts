@@ -105,4 +105,8 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
   },
+
+  imports: {
+    autoImport: false,
+  },
 })

@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm'
 
+import { defineLazyEventHandler } from '#imports'
+
 export default defineLazyEventHandler(() => eventHandler(async (event) => {
   try {
     await event.context.database.run(sql`SELECT 1;`)
