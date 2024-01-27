@@ -15,8 +15,8 @@ devDependencies:
     specifier: ^1.1.95
     version: 1.1.95
   '@lucia-auth/adapter-sqlite':
-    specifier: ^2.0.1
-    version: 2.0.1(better-sqlite3@9.0.0)(lucia@2.7.1)
+    specifier: ^3.0.0
+    version: 3.0.0(better-sqlite3@9.0.0)(lucia@2.7.1)
   '@nuxt/devtools':
     specifier: latest
     version: 0.8.3(nuxt@3.8.0)(rollup@2.79.1)(vite@4.5.0)
@@ -2315,12 +2315,12 @@ packages:
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
     dev: true
 
-  /@lucia-auth/adapter-sqlite@2.0.1(better-sqlite3@9.0.0)(lucia@2.7.1):
-    resolution: {integrity: sha512-yc7XQ4X3sWG1gyUGHqaXipJIkmvB4MOgJypnSMWy7Vjhn3AOCM2xw51xTs+dGpLOQIn2Laomg9xpmDM2/9tgqQ==}
+  /@lucia-auth/adapter-sqlite@3.0.0(better-sqlite3@9.0.0)(lucia@2.7.1):
+    resolution: {integrity: sha512-7XMfMMNziFOoqIq2u9W5Z+wo7G7lzNQfUh7wDlkIqKxJMSLtP6GKH+QpK+21X4ZY9dIDmiuiwqZmS3Q3CgpATw==}
     peerDependencies:
       '@libsql/client': ^0.3.0
       better-sqlite3: 8.x - 9.x
-      lucia: ^2.0.0
+      lucia: 3.x
     peerDependenciesMeta:
       '@libsql/client':
         optional: true
