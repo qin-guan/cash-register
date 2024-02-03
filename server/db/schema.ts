@@ -33,3 +33,16 @@ export const keys = sqliteTable('user_keys', {
 })
 
 export type Keys = InferSelectModel<typeof keys>
+
+export const entries = sqliteTable('entries', {
+  id: text('id').primaryKey(),
+  date: text('date'),
+  category: text('category'),
+  amount: text('amount'),
+  description: text('description'),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id),
+})
+
+export type Entries = InferSelectModel<typeof entries>
