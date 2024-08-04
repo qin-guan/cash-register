@@ -1,10 +1,6 @@
 <template>
-  <div class="dark:bg-neutral-900 h-screen">
-    <VitePwaManifest />
-    <NuxtLoadingIndicator />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <UNotifications />
+  <div>
+    <NuxtRouteAnnouncer />
+    <NuxtWelcome />
   </div>
 </template>
