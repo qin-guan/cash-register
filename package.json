@@ -4,12 +4,17 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev -p 14321",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/ui": "^2.18.3",
+    "@nuxtjs/supabase": "^1.3.5",
+    "@pinia/nuxt": "^0.5.2",
+    "@vite-pwa/nuxt": "^0.9.1",
+    "duckdb-async": "^1.0.0",
     "nuxt": "^3.12.4",
     "vue": "latest"
   }
