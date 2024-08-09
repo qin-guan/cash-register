@@ -1,26 +1,7 @@
 // /Users/julianteh/julwrites/cash-register/server/api/expenses/add.ts
 
 import { defineEventHandler, readBody, createError } from 'h3';
-import { Database } from 'duckdb-async';
-import { Expense } from './index'
-
-const databasePath = 'data/expenses.db';
-
-// Initialize DuckDB connection
-const db = await Database.create(databasePath);
-await db.connect();
-
-// Create table if not exists
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS expenses (
-    id INTEGER PRIMARY KEY,
-    amount DECIMAL(10, 2),
-    description VARCHAR(255),
-    date DATE,
-    category VARCHAR(50)
-  );
-`);
-
+import db, { Expense } from './expenses-db'
 
 export default defineEventHandler(async (event) => {
   const expense: Expense = await readBody(event);

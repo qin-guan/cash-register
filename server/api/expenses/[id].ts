@@ -1,39 +1,8 @@
 // /Users/julianteh/julwrites/cash-register/server/api/expenses/[id].ts
 
-import { Database } from 'duckdb-async';
 import { defineEventHandler, readBody, createError } from 'h3';
-import { existsSync } from 'fs';
+import db, { Expense } from './expenses-db';
 
-// Define the Expense interface
-interface Expense {
-  id?: number;
-  amount: number;
-  description: string;
-  date: string;
-  category: string;
-}
-
-const databasePath = 'data/expenses.db';
-
-// Initialize DuckDB connection
-const db = await Database.create(databasePath);
-await db.connect();
-
-// Create table if not exists
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS expenses (
-    id INTEGER PRIMARY KEY,
-    amount DECIMAL(10, 2),
-    description VARCHAR(255),
-    date DATE,
-    category VARCHAR(50)
-  );
-`);
-
-// Load data from CSV file if it exists
-if (!existsSync(databasePath)) {
-  console.log("No existing CSV file found. Starting with empty table.");
-}
 
 export default defineEventHandler(async (event) => {
   const method = event.node.req.method;
