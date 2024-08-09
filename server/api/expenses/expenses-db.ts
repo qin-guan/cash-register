@@ -1,4 +1,4 @@
-// db.ts
+// expenses-db.ts
 import { existsSync } from 'fs';
 import { Database } from 'duckdb-async';
 
@@ -6,9 +6,8 @@ const databasePath = 'data/expenses.db';
 const db = await Database.create(databasePath);
 await db.connect();
 
-// Load data from CSV file if it exists
 if (!existsSync(databasePath)) {
-  console.log("No existing CSV file found. Starting with empty table.");
+  console.log("No existing Expenses Table found. Starting with empty table.");
 }
 
 // Create table if not exists

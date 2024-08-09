@@ -63,7 +63,7 @@ async function checkLoginStatus() {
 
 async function checkAdminStatus(token: string) {
   try {
-    const response = await fetch('/api/auth/check-admin', {
+    const response = await fetch('/api/users/auth/check-admin', {
       headers: {
         'Authorization': `Bearer ${token}`
       }

@@ -44,7 +44,7 @@ const error = ref(null)
 onMounted(async () => {
   try {
     const token = getItem('authToken');
-    const response = await fetch('/api/admin/getUsers', {
+    const response = await fetch('/api/users/admin/getUsers', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -72,7 +72,7 @@ async function removeUser(userId) {
   if (confirm('Are you sure you want to remove this user?')) {
     try {
       const token = getItem('authToken');
-      const response = await fetch(`/api/admin/deleteUser`, {
+      const response = await fetch(`/api/users/admin/deleteUser`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -92,7 +92,7 @@ async function removeUser(userId) {
 async function updateUser(userId, is_admin) {
   try {
     const token = getItem('authToken');
-    const response = await fetch(`/api/admin/updateUser`, {
+    const response = await fetch(`/api/users/admin/updateUser`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

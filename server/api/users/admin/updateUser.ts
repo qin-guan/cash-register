@@ -1,9 +1,8 @@
 // server/api/admin/updateUser.ts
 
 import { defineEventHandler, readBody, createError } from 'h3'
-import { Database } from 'duckdb-async'
 import jwt from 'jsonwebtoken'
-import { User } from '../auth/login'
+import db, { User } from '../users-db'
 
 const secretKey = process.env.AUTH_SECRET
 const databasePath = 'data/users.db'
@@ -26,9 +25,6 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Forbidden'
       })
     }
-
-    const db = await Database.create(databasePath)
-    await db.connect()
 
     // Update user (promote/demote)
     const { userId, is_admin } = await readBody(event)

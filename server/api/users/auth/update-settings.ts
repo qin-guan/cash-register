@@ -1,10 +1,7 @@
 import { defineEventHandler, readBody, createError } from 'h3';
-import { Database } from 'duckdb-async';
+import { Statement } from 'duckdb-async'
 import jwt from 'jsonwebtoken';
-import { User } from './login';
-
-const databasePath = 'data/users.db';
-const secretKey = process.env.AUTH_SECRET;
+import db, { User, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,18 +18,6 @@ export default defineEventHandler(async (event) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, secretKey) as { userId: number };
 
-    const db = await Database.create(databasePath);
-    await db.connect();
-
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        username VARCHAR(50) UNIQUE,
-        password VARCHAR(50),
-        is_admin BOOLEAN DEFAULT FALSE
-      );
-    `);
-
     // Check if user exists
     const users = await db.all('SELECT * FROM users WHERE id = ?', decoded.userId) as User[];
     
@@ -44,7 +29,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    var result: Database.Statement;
+    var result: Statement;
     if (newUsername === users[0].username) {
       result = await db.run(`
         UPDATE users

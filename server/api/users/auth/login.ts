@@ -1,38 +1,12 @@
 // server/api/auth/login.ts
 
 import { defineEventHandler, readBody, createError } from 'h3';
-import { Database } from 'duckdb-async';
 import jwt from 'jsonwebtoken';
-import { existsSync } from 'fs';
-
-const databasePath = 'data/users.db';
-
-export interface User {
-  id: number;
-  username: string;
-  password: string;
-  is_admin: boolean;
-}
-
-const secretKey = process.env.AUTH_SECRET;
+import db, { User, secretKey } from '../users-db'
 
 export default defineEventHandler(async (event) => {
   try {
     const { username, password } = await readBody(event);
-
-    let db = await Database.create(databasePath);
-
-    await db.connect();
-
-    // Create table if not exists
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        username VARCHAR(50) UNIQUE,
-        password VARCHAR(50),
-        is_admin BOOLEAN DEFAULT FALSE
-      );
-    `);
 
     let user: User | undefined;
 

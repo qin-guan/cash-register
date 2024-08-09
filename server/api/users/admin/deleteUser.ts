@@ -1,12 +1,8 @@
-// server/api/admin/getUsers.ts
+// server/api/admin/deleteUser.ts
 
-import { defineEventHandler, createError } from 'h3'
-import { Database } from 'duckdb-async'
+import { defineEventHandler, readBody, createError } from 'h3'
 import jwt from 'jsonwebtoken'
-import { User } from '../auth/login'
-
-const secretKey = process.env.AUTH_SECRET
-const databasePath = 'data/users.db'
+import db, { User, secretKey } from '../users-db'
 
 export default defineEventHandler(async (event) => {
   // Verify that the user is an admin
@@ -27,14 +23,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const db = await Database.create(databasePath)
-    await db.connect()
-
-    // List all users
-    const users = await db.all('SELECT id, username, is_admin FROM users') as User[]
-    return users
+    // Remove user
+    const { userId } = JSON.parse(await readBody(event))
+    console.log(userId);
+    await db.run('DELETE FROM users WHERE id = ?', userId)
+    return { success: true }
   } catch (error) {
-    console.error('Get Users API error:', error)
+    console.error('Delete User API error:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error'

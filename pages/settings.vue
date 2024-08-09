@@ -28,7 +28,7 @@ const { getItem } = useLocalStorage();
 async function updateSettings() {
   const token = getItem('authToken');
   try {
-    const response = await fetch('/api/auth/update-settings', {
+    const response = await fetch('/api/users/auth/update-settings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

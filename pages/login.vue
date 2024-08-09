@@ -26,7 +26,7 @@ const { setItem } = useLocalStorage();
 
 async function login() {
   try {
-    const response = await $fetch('/api/auth/login', {
+    const response = await $fetch('/api/users/auth/login', {
       method: 'POST',
       body: { username: username.value, password: password.value },
     });
