@@ -1,33 +1,26 @@
-# syntax = docker/dockerfile:1
+# Use an official Node runtime as the base image
+FROM node:22-bookworm-slim
 
-ARG NODE_VERSION=18.14.2
+# Set the working directory in the container
+WORKDIR /app
 
-FROM node:${NODE_VERSION}-slim as base
+# Copy package.json and pnpm-lock.yaml
+COPY package.json ./
 
-ARG PORT=3000
+# Install pnpm globally
+RUN npm install -g pnpm
 
-ENV NODE_ENV=production
+# Install dependencies
+RUN pnpm install
 
-WORKDIR /src
+# Copy the rest of the application code
+COPY . .
 
-# Build
-FROM base as build
+# Build the application
+RUN pnpm run build
 
-COPY --link package.json .
-RUN npm install --production=false
+# Expose the port the app runs on
+EXPOSE 3000
 
-COPY --link . .
-
-RUN npm run build
-RUN npm prune
-
-# Run
-FROM base
-
-ENV PORT=$PORT
-
-COPY --from=build /src/.output /src/.output
-# Optional, only needed if you rely on unbundled dependencies
-# COPY --from=build /src/node_modules /src/node_modules
-
-CMD [ "node", ".output/server/index.mjs" ]
+# Set the command to run the app
+CMD ["node", ".output/server/index.mjs"]

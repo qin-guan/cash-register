@@ -13,8 +13,10 @@ interface Expense {
   category: string;
 }
 
+const databasePath = 'data/expenses.db';
+
 // Initialize DuckDB connection
-const db = await Database.create(':memory:');
+const db = await Database.create(databasePath);
 await db.connect();
 
 // Create table if not exists
@@ -29,9 +31,7 @@ await db.exec(`
 `);
 
 // Load data from CSV file if it exists
-if (existsSync('expenses.csv')) {
-  await db.exec("COPY expenses FROM 'expenses.csv' (HEADER, DELIMITER ',')");
-} else {
+if (!existsSync(databasePath)) {
   console.log("No existing CSV file found. Starting with empty table.");
 }
 
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 
   // GET: Fetch a single expense
   if (method === 'GET') {
-    const expense = await db.all("SELECT * FROM expenses WHERE id = ?", [id]) as Expense[];
+    const expense = await db.all("SELECT * FROM expenses WHERE id = ?", id) as Expense[];
     if (expense.length === 0) {
       throw createError({
         statusCode: 404,
@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
     `, [updatedExpense.amount, updatedExpense.description, updatedExpense.date, updatedExpense.category, id]);
     
     // Check if the expense exists after the update
-    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", [id]);
+    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
     
     if (updatedResult.length === 0) {
       throw createError({
@@ -70,16 +70,15 @@ export default defineEventHandler(async (event) => {
       });
     }
     
-    await db.exec("COPY expenses TO 'expenses.csv' (HEADER, DELIMITER ',')");
     return { id: Number(id), ...updatedExpense };
   }
 
   // DELETE: Delete an expense
   if (method === 'DELETE') {
-    await db.run("DELETE FROM expenses WHERE id = ?", [id]);
+    await db.run("DELETE FROM expenses WHERE id = ?", id);
 
     // Check if the expense exists after the update
-    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", [id]);
+    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
     
     if (updatedResult.length > 0) {
       throw createError({
@@ -87,8 +86,9 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Expense was not deleted correctly',
       });
     }
+
+    console.log(`Expense with ID ${id} deleted successfully`);
     
-    await db.exec("COPY expenses TO 'expenses.csv' (HEADER, DELIMITER ',')");
     return { message: 'Expense deleted successfully' };
   }
 });
