@@ -1,8 +1,5 @@
-// /Users/julianteh/julwrites/cash-register/server/api/expenses/index.ts
-
 import { defineEventHandler, createError } from 'h3';
-import db, { Expense } from './expenses-db'
-
+import db, { Expense } from './expenses-db';
 
 // Utility function to get error message
 function getErrorMessage(error: unknown): string {
@@ -11,6 +8,16 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default defineEventHandler(async (event) => {
-  const expenses = await db.all("SELECT * FROM expenses") as Expense[];
-  return expenses;
+  return await fetchExpenses();
 });
+
+// Add a function to fetch expenses with formatted date
+export async function fetchExpenses(): Promise<Expense[]> {
+  const result = await db.all(`
+    SELECT id, credit, debit, description,
+      STRFTIME('%Y-%m-%d', date) as date,
+      category
+    FROM expenses;
+  `);
+  return result as Expense[];
+}

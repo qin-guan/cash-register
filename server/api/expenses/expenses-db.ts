@@ -1,4 +1,3 @@
-// expenses-db.ts
 import { existsSync } from 'fs';
 import { Database } from 'duckdb-async';
 
@@ -14,7 +13,8 @@ if (!existsSync(databasePath)) {
 await db.exec(`
   CREATE TABLE IF NOT EXISTS expenses (
     id INTEGER PRIMARY KEY,
-    amount DECIMAL(10, 2),
+    credit DECIMAL(10, 2) DEFAULT 0,
+    debit DECIMAL(10, 2) DEFAULT 0,
     description VARCHAR(255),
     date DATE,
     category VARCHAR(50)
@@ -24,7 +24,8 @@ await db.exec(`
 // Define the Expense interface
 export interface Expense {
   id?: number;
-  amount: number;
+  credit?: number;
+  debit?: number;
   description: string;
   date: string;
   category: string;

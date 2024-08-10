@@ -9,7 +9,6 @@
         <button @click="selectedTab = 'list'" :class="{ active: selectedTab === 'list' }">Expense List</button>
         <button @click="selectedTab = 'settings'" :class="{ active: selectedTab === 'settings' }">Settings</button>
       </div>
-      <button @click="logout" class="logout-btn">Logout</button>
     </div>
 
     <div v-if="selectedTab === 'form'">
@@ -21,6 +20,10 @@
     <div v-else-if="selectedTab === 'settings'">
       <SettingsPage :isAdmin="isAdmin" />
     </div>
+
+    <br />
+
+    <button @click="logout" class="logout-btn">Logout</button>
   </div>
   <div v-else>
     <p>You need to log in to access the expense tracker.</p>

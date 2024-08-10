@@ -1,8 +1,5 @@
-// /Users/julianteh/julwrites/cash-register/server/api/expenses/[id].ts
-
 import { defineEventHandler, readBody, createError } from 'h3';
 import db, { Expense } from './expenses-db';
-
 
 export default defineEventHandler(async (event) => {
   const method = event.node.req.method;
@@ -25,13 +22,13 @@ export default defineEventHandler(async (event) => {
     const updatedExpense: Expense = await readBody(event);
     await db.run(`
       UPDATE expenses
-      SET amount = ?, description = ?, date = ?, category = ?
+      SET credit = ?, debit = ?, description = ?, date = ?, category = ?
       WHERE id = ?
-    `, updatedExpense.amount, updatedExpense.description, updatedExpense.date, updatedExpense.category, id);
+    `, updatedExpense.credit || 0, updatedExpense.debit || 0, updatedExpense.description, updatedExpense.date, updatedExpense.category, id);
     
     // Check if the expense exists after the update
     const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
-    
+
     if (updatedResult.length === 0) {
       throw createError({
         statusCode: 404,
@@ -46,7 +43,7 @@ export default defineEventHandler(async (event) => {
   if (method === 'DELETE') {
     await db.run("DELETE FROM expenses WHERE id = ?", id);
 
-    // Check if the expense exists after the update
+    // Check if the expense exists after the delete
     const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
     
     if (updatedResult.length > 0) {
