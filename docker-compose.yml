@@ -1,0 +1,10 @@
+version: "3"
+services:
+  cash-register:
+    # Use the built image from the Dockerfile
+    image: cash-register  # You might need to specify a tag if you're building multiple images
+    ports:
+      - "14321:3000"
+    volumes:
+      - /Users/julianteh/OneDrive/Chillian/Cash-Register/data:/app/data
+    env_file: /Users/julianteh/OneDrive/Chillian/Cash-Register/data/cash-register.env
