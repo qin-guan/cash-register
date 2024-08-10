@@ -10,7 +10,7 @@ await db.connect();
 await db.run(`
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+    name VARCHAR(50) NOT NULL
   );
 `);
 

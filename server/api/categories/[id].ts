@@ -6,12 +6,14 @@ export default defineEventHandler(async (event) => {
   const id = event.context.params?.id;
 
   if (method === 'DELETE') {
-    const result = await db.run("DELETE FROM categories WHERE id = ?", id);
+    await db.run("DELETE FROM categories WHERE id = ?", id);
 
-    if (result.changes === 0) {
+    const [category] = await db.all("SELECT * FROM categories WHERE id = ?", id);
+
+    if (category) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Category not found',
+        statusMessage: 'Category was not deleted',
       });
     }
 
@@ -30,25 +32,26 @@ export default defineEventHandler(async (event) => {
 
     const [category] = await db.all("SELECT * FROM categories WHERE id = ?", id);
 
-    // No operation if same name
-    if (updateData.name === category.name) {
-      return category;
-    }
-
-    const result = await db.run(`
-      UPDATE categories 
-      SET name = COALESCE(?, name) 
-      WHERE id = ?
-    `, updateData.name, id);
-
-    if (result.changes === 0) {
+    if (!category) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Category not found',
       });
     }
 
+    // No operation if same name
+    if (updateData.name === category.name) {
+      return category;
+    }
+
+    await db.run(`
+      UPDATE categories 
+      SET name = ?
+      WHERE id = ?
+    `, updateData.name, id);
+
     const [updatedCategory] = await db.all("SELECT * FROM categories WHERE id = ?", id);
+
     return updatedCategory;
   }
 });
