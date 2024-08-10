@@ -7,7 +7,6 @@
       <div class="tabs">
         <button @click="selectedTab = 'form'" :class="{ active: selectedTab === 'form' }">Add Expense</button>
         <button @click="selectedTab = 'list'" :class="{ active: selectedTab === 'list' }">Expense List</button>
-        <button v-if="isAdmin" @click="selectedTab = 'admin'" :class="{ active: selectedTab === 'admin' }">Admin</button>
         <button @click="selectedTab = 'settings'" :class="{ active: selectedTab === 'settings' }">Settings</button>
       </div>
       <button @click="logout" class="logout-btn">Logout</button>
@@ -19,11 +18,8 @@
     <div v-else-if="selectedTab === 'list'">
       <ExpenseList />
     </div>
-    <div v-else-if="selectedTab === 'admin' && isAdmin">
-      <AdminPage />
-    </div>
     <div v-else-if="selectedTab === 'settings'">
-      <SettingsPage />
+      <SettingsPage :isAdmin="isAdmin" />
     </div>
   </div>
   <div v-else>
@@ -37,9 +33,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ExpenseForm from './expense-form.vue';
 import ExpenseList from './expense-list.vue';
-import AdminPage from './admin.vue';
 import SettingsPage from './settings.vue';
-
 
 const router = useRouter();
 const selectedTab = ref('form');
@@ -63,7 +57,7 @@ async function checkLoginStatus() {
 
 async function checkAdminStatus(token: string) {
   try {
-    const response = await fetch('/api/users/auth/check-admin', {
+    const response = await fetch('/api/users/auth/checkAdmin', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -123,6 +117,4 @@ function logout() {
 .logout-btn:hover {
   background-color: #c82333;
 }
-
-/* Add any additional styles you need */
 </style>

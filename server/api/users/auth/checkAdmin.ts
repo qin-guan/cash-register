@@ -1,4 +1,4 @@
-// server/api/auth/check-admin.ts
+// server/api/auth/checkAdmin.ts
 
 import { defineEventHandler, createError } from 'h3'
 import jwt from 'jsonwebtoken'
@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const decoded = jwt.verify(token, secretKey) as any
+    console.log(decoded)
     return { isAdmin: decoded.isAdmin || false }
   } catch (error) {
     console.error('Check admin error:', error)

@@ -12,13 +12,14 @@ if (!existsSync(databasePath)) {
   console.log("No existing Users Table found. Starting with empty table.");
 }
 
-// Create table if not exists
+// Create table if not exists and add `is_approved` column
 await db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
     username VARCHAR(50) UNIQUE,
     password VARCHAR(50),
-    is_admin BOOLEAN DEFAULT FALSE
+    is_admin BOOLEAN DEFAULT FALSE,
+    is_approved BOOLEAN DEFAULT FALSE
   );
 `);
 
@@ -27,6 +28,7 @@ export interface User {
   username: string;
   password: string;
   is_admin: boolean;
+  is_approved: boolean;
 }
 
 export default db;

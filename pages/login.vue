@@ -41,7 +41,13 @@ async function login() {
     }
   } catch (error) {
     console.error('Login error:', error);
-    alert('Invalid username or password');
+
+    // Handle specific error for account not approved
+    if (error.status === 403 && error.data?.statusMessage === 'Account not approved by admin') {
+      alert('Your account is awaiting admin approval.');
+    } else {
+      alert('Invalid username or password');
+    }
   }
 }
 </script>

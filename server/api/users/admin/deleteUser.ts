@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
 
     // Remove user
     const { userId } = JSON.parse(await readBody(event))
-    console.log(userId);
     await db.run('DELETE FROM users WHERE id = ?', userId)
     return { success: true }
   } catch (error) {

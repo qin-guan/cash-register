@@ -11,6 +11,7 @@
             <th>ID</th>
             <th>Username</th>
             <th>Admin</th>
+            <th>Approved</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -19,9 +20,11 @@
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.is_admin ? 'Yes' : 'No' }}</td>
+            <td>{{ user.is_approved ? 'Yes' : 'No' }}</td>
             <td>
-              <button v-if="!user.is_admin" @click="promoteUser(user.id)">Promote to Admin</button>
-              <button v-else @click="demoteUser(user.id)">Demote from Admin</button>
+              <button v-if="user.is_approved && !user.is_admin" @click="promoteUser(user.id)">Promote to Admin</button>
+              <button v-if="user.is_approved && user.is_admin" @click="demoteUser(user.id)">Demote from Admin</button>
+              <button v-if="!user.is_approved" @click="approveUser(user.id)">Approve User</button>
               <button @click="removeUser(user.id)">Remove User</button>
             </td>
           </tr>
@@ -32,14 +35,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 const { getItem } = useLocalStorage();
 
-const router = useRouter()
-const users = ref([])
-const loading = ref(true)
-const error = ref(null)
+const router = useRouter();
+const users = ref([]);
+const loading = ref(true);
+const error = ref(null);
 
 onMounted(async () => {
   try {
@@ -48,24 +51,49 @@ onMounted(async () => {
       headers: {
         'Authorization': `Bearer ${token}`
       }
-    })
+    });
     if (!response.ok) {
-      throw new Error('You do not have permission to access this page')
+      throw new Error('You do not have permission to access this page');
     }
-    users.value = await response.json()
-    loading.value = false
+    users.value = await response.json();
+    loading.value = false;
   } catch (err) {
-    error.value = err.message
-    loading.value = false
+    error.value = err.message;
+    loading.value = false;
   }
-})
+});
 
 async function promoteUser(userId) {
-  await updateUser( userId, true )
+  await updateAdmin(userId, { is_admin: true });
 }
 
 async function demoteUser(userId) {
-  await updateUser( userId, false )
+  await updateAdmin(userId, { is_admin: false });
+}
+
+async function approveUser(userId) {
+  try {
+    const token = getItem('authToken');
+    const response = await fetch(`/api/users/admin/approveUser`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update user');
+    }
+    const updatedUser = await response.json();
+    const index = users.value.findIndex(user => user.id === userId);
+    if (index !== -1) {
+      users.value[index] = updatedUser;
+    }
+  } catch (err) {
+    error.value = err.message;
+  }
 }
 
 async function removeUser(userId) {
@@ -77,42 +105,40 @@ async function removeUser(userId) {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ userId: userId })
-      })
+        body: JSON.stringify({ userId })
+      });
       if (!response.ok) {
-        throw new Error('Failed to remove user')
+        throw new Error('Failed to remove user');
       }
-      users.value = users.value.filter(user => user.id !== userId)
+      users.value = users.value.filter(user => user.id !== userId);
     } catch (err) {
-      error.value = err.message
+      error.value = err.message;
     }
   }
 }
 
-async function updateUser(userId, is_admin) {
+async function updateAdmin(userId, updates) {
   try {
     const token = getItem('authToken');
-    const response = await fetch(`/api/users/admin/updateUser`, {
+    const response = await fetch(`/api/users/admin/setAdmin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ userId: userId, is_admin: is_admin }),
-    })
-
-    console.log(response);
+      body: JSON.stringify({ userId, ...updates }),
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to update user')
+      throw new Error('Failed to update user');
     }
-    const updatedUser = await response.json()
-    const index = users.value.findIndex(user => user.id === userId)
+    const updatedUser = await response.json();
+    const index = users.value.findIndex(user => user.id === userId);
     if (index !== -1) {
-      users.value[index] = updatedUser
+      users.value[index] = updatedUser;
     }
   } catch (err) {
-    error.value = err.message
+    error.value = err.message;
   }
 }
 </script>

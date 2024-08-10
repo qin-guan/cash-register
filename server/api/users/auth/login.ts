@@ -1,61 +1,39 @@
-// server/api/auth/login.ts
-
 import { defineEventHandler, readBody, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import db, { User, secretKey } from '../users-db'
+import db, { User, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   try {
     const { username, password } = await readBody(event);
-
     let user: User | undefined;
 
-    // Check if user exists
-    const existingUser = await db.all(`
-      SELECT * FROM users WHERE username = ?;
-    `, [username]) as User[];
-
+    const existingUser = await db.all(`SELECT * FROM users WHERE username = ?;`, username) as User[];
+    
     if (existingUser.length > 0) {
-      // User exists, check password
       user = existingUser[0];
       if (user.password !== password) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: 'Invalid credentials'
-        });
+        throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
+      }
+      if (!user.is_admin && !user.is_approved) {
+        throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
       }
     } else {
-      // User doesn't exist, create new user
       const users = await db.all('SELECT * FROM users');
-
-      // Get the next ID by finding the maximum ID and adding 1
       const maxIdResult = await db.all("SELECT COALESCE(MAX(id), 0) as max_id FROM users");
       const nextId = maxIdResult[0].max_id + 1;
+      const isFirstUser = users.length === 0;
+      const isApproved = isFirstUser;
+    
+      await db.run(`INSERT INTO users (id, username, password, is_admin, is_approved) VALUES (?, ?, ?, ?, ?);`, nextId, username, password, isFirstUser, isApproved);
       
-      await db.run(`
-        INSERT INTO users (id, username, password, is_admin) VALUES (?, ?, ?, ?);
-      `, nextId, username, password, users.length === 0);
-
-      user = (await db.all(`
-        SELECT * FROM users WHERE username = ?;
-      `, [username]) as User[])[0];
+      user = (await db.all(`SELECT * FROM users WHERE username = ?;`, username) as User[])[0];
+      throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
     }
 
-    if (user) {
-      // Generate JWT token
-      const token = jwt.sign({ userId: user.id, username: user.username, isAdmin: user.is_admin }, secretKey, { expiresIn: '1h' });
-      return { token, isAdmin: user.is_admin };
-    } else {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to create or retrieve user'
-      });
-    }
+    const token = jwt.sign({ userId: user.id, username: user.username, isAdmin: user.is_admin }, secretKey, { expiresIn: '1h' });
+    return { token, isAdmin: user.is_admin };
   } catch (error) {
     console.error('Login error:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal server error' 
-    });
+    throw error;
   }
 });

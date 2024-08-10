@@ -12,6 +12,5 @@ function getErrorMessage(error: unknown): string {
 
 export default defineEventHandler(async (event) => {
   const expenses = await db.all("SELECT * FROM expenses") as Expense[];
-  console.log(expenses)
   return expenses;
 });

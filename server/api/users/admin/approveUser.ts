@@ -1,12 +1,14 @@
-// server/api/admin/getUsers.ts
-import { defineEventHandler, createError } from 'h3';
+// server/api/admin/approveUser.ts
+
+import { defineEventHandler, readBody, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import db, { User } from '../users-db';
+import db from '../users-db';
 
 const secretKey = process.env.AUTH_SECRET;
 
 export default defineEventHandler(async (event) => {
   const token = event.req.headers.authorization?.split(' ')[1];
+
   if (!token) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
   }
@@ -17,10 +19,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
     }
 
-    const users = await db.all('SELECT id, username, is_admin, is_approved FROM users') as User[];
-    return users;
+    const { userId } = await readBody(event);
+    await db.run('UPDATE users SET is_approved = ? WHERE id = ?', true, userId);
+
+    const updatedUser = await db.all('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
+    return updatedUser[0];
   } catch (error) {
-    console.error('Get Users API error:', error);
+    console.error('Approve User API error:', error);
     throw createError({ statusCode: 500, statusMessage: 'Internal Server Error' });
   }
 });
