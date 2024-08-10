@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       UPDATE expenses
       SET amount = ?, description = ?, date = ?, category = ?
       WHERE id = ?
-    `, [updatedExpense.amount, updatedExpense.description, updatedExpense.date, updatedExpense.category, id]);
+    `, updatedExpense.amount, updatedExpense.description, updatedExpense.date, updatedExpense.category, id);
     
     // Check if the expense exists after the update
     const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);

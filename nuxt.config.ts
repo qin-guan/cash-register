@@ -46,8 +46,8 @@ export default defineNuxtConfig({
     filename: sw ? 'sw.ts' : undefined,
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Nuxt Vite PWA',
-      short_name: 'NuxtVitePWA',
+      name: 'Cash-Register',
+      short_name: 'Cash-Register',
       theme_color: '#ffffff',
       icons: [
         {
