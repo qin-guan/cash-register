@@ -15,12 +15,12 @@
       <input type="text" id="description" v-model="expenseData.description" required>
     </div>
     <div>
-      <label for="credit">Credit:</label>
-      <input type="number" id="credit" v-model.number="expenseData.credit" step="0.01" min="0">
-    </div>
-    <div>
       <label for="debit">Debit:</label>
       <input type="number" id="debit" v-model.number="expenseData.debit" step="0.01" min="0">
+    </div>
+    <div>
+      <label for="credit">Credit:</label>
+      <input type="number" id="credit" v-model.number="expenseData.credit" step="0.01" min="0">
     </div>
     <button type="submit">{{ submitButtonText }}</button>
     <button type="button" @click="cancelEdit">Cancel</button>
