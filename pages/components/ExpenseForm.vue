@@ -1,30 +1,30 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div>
+  <UForm @submit.prevent="handleSubmit">
+    <UConainer>
       <label for="date">Date:</label>
-      <input type="date" id="date" v-model="expenseData.date" required>
-    </div>
-    <div class="form-group">
+      <UInput type="date" id="date" v-model="expenseData.date" required />
+    </UConainer>
+    <UConainer class="form-group">
       <label for="category">Category:</label>
-      <select v-model="expenseData.category" id="category" required>
+      <USelect v-model="expenseData.category" id="category" required>
         <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-      </select>
-    </div>
-    <div>
+      </USelect>
+    </UConainer>
+    <UConainer>
       <label for="description">Description:</label>
-      <input type="text" id="description" v-model="expenseData.description" required>
-    </div>
-    <div>
+      <UInput type="text" id="description" v-model="expenseData.description" required />
+    </UConainer>
+    <UConainer>
       <label for="debit">Debit:</label>
-      <input type="number" id="debit" v-model.number="expenseData.debit" step="0.01" min="0">
-    </div>
-    <div>
+      <UInput type="number" id="debit" v-model.number="expenseData.debit" step="0.01" min="0" />
+    </UConainer>
+    <UConainer>
       <label for="credit">Credit:</label>
-      <input type="number" id="credit" v-model.number="expenseData.credit" step="0.01" min="0">
-    </div>
-    <button type="submit">{{ submitButtonText }}</button>
-    <button type="button" @click="cancelEdit">Cancel</button>
-  </form>
+      <UInput type="number" id="credit" v-model.number="expenseData.credit" step="0.01" min="0" />
+    </UConainer>
+    <UButton type="submit">Submit</UButton>
+    <UButton type="UButton" color="red" @click="cancelEdit">Cancel</UButton>
+  </UForm>
 </template>
 
 <script setup lang="ts">
@@ -67,7 +67,7 @@ function handleSubmit() {
   if (validateExpense(expenseData.value)) {
     emits('submit', expenseData.value);
   }
-  expenseData.value = { date: '', category: '', description: '', credit: 0, debit: 0 }; // Reset form
+  expenseData.value = { date: '', category: '', description: '', credit: 0, debit: 0 }; // Reset UForm
 }
 
 function validateExpense(expense: Expense): boolean {

@@ -1,34 +1,30 @@
 <!-- pages/index.vue -->
 <template>
-  <div v-if="isLoggedIn">
+  <UContainer v-if="isLoggedIn">
     <h1>Expense Tracker</h1>
 
-    <div class="header">
-      <div class="tabs">
-        <button @click="selectedTab = 'form'" :class="{ active: selectedTab === 'form' }">Add Expense</button>
-        <button @click="selectedTab = 'list'" :class="{ active: selectedTab === 'list' }">Expense List</button>
-        <button @click="selectedTab = 'settings'" :class="{ active: selectedTab === 'settings' }">Settings</button>
-      </div>
-    </div>
+    <UContainer class="header">
+      <UTabs :items="items" @change="onChange"/>
+    </UContainer>
 
-    <div v-if="selectedTab === 'form'">
+    <UContainer v-if="selectedTab === 'form'">
       <ExpenseForm />
-    </div>
-    <div v-else-if="selectedTab === 'list'">
+    </UContainer>
+    <UContainer v-else-if="selectedTab === 'list'">
       <ExpenseList />
-    </div>
-    <div v-else-if="selectedTab === 'settings'">
+    </UContainer>
+    <UContainer v-else-if="selectedTab === 'settings'">
       <SettingsPage :isAdmin="isAdmin" />
-    </div>
+    </UContainer>
 
     <br />
 
-    <button @click="logout" class="logout-btn">Logout</button>
-  </div>
-  <div v-else>
+    <UButton @click="logout" class="logout-btn">Logout</UButton>
+  </UContainer>
+  <UContainer v-else>
     <p>You need to log in to access the expense tracker.</p>
     <router-link to="/login">Login</router-link>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
@@ -44,9 +40,28 @@ const isLoggedIn = ref(false);
 const isAdmin = ref(false);
 const { getItem, removeItem } = useLocalStorage();
 
+const items = [
+  {
+    label: 'Add Record',
+    slot: 'form',
+  },
+  {
+    label: 'Expense List',
+    slot: 'list',
+  },
+  {
+    label: 'Settings',
+    slot: 'settings',
+  },
+];
+
 onMounted(async () => {
   await checkLoginStatus();
 });
+
+function onChange(index) {
+  selectedTab.value = items[index].slot;
+}
 
 async function checkLoginStatus() {
   const token = getItem('authToken');
@@ -96,7 +111,7 @@ function logout() {
   display: flex;
 }
 
-.tabs button {
+.tabs UButton {
   padding: 10px 20px;
   margin-right: 10px;
   border: none;
@@ -104,7 +119,7 @@ function logout() {
   cursor: pointer;
 }
 
-.tabs button.active {
+.tabs UButton.active {
   background-color: #007bff;
   color: white;
 }

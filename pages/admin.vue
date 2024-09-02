@@ -1,37 +1,13 @@
 <!-- pages/admin.vue -->
 <template>
-  <div class="admin-page">
+  <UContainer class="admin-page">
     <h1>Admin Dashboard</h1>
-    <div v-if="loading">Loading...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <div v-else>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Admin</th>
-            <th>Approved</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.is_admin ? 'Yes' : 'No' }}</td>
-            <td>{{ user.is_approved ? 'Yes' : 'No' }}</td>
-            <td>
-              <button v-if="user.is_approved && !user.is_admin" @click="promoteUser(user.id)">Promote to Admin</button>
-              <button v-if="user.is_approved && user.is_admin" @click="demoteUser(user.id)">Demote from Admin</button>
-              <button v-if="!user.is_approved" @click="approveUser(user.id)">Approve User</button>
-              <button @click="removeUser(user.id)">Remove User</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+    <UContainer v-if="loading">Loading...</UContainer>
+    <UContainer v-else-if="error">{{ error }}</UContainer>
+    <UContainer v-else>
+      <UTable :rows="rows" />
+    </UContainer>
+  </UContainer>
 </template>
 
 <script setup>
@@ -43,6 +19,7 @@ const router = useRouter();
 const users = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const rows = ref([]);
 
 onMounted(async () => {
   try {
@@ -56,6 +33,26 @@ onMounted(async () => {
       throw new Error('You do not have permission to access this page');
     }
     users.value = await response.json();
+
+    rows.value = users.value.map(user => {
+      return {
+        id: user.id,
+        name: user.username,
+        role: user.is_admin ? 'Admin' : 'User',
+        status: user.is_approved ? 'Approved' : 'Pending',
+        actions: [
+          {
+            label: user.is_approved && !user.is_admin ? 'Promote' : 'Demote',
+            onClick: () => user.is_admin ? demoteUser(user.id) : promoteUser(user.id)
+          },
+          {
+            label: user.is_approved ? 'Remove' : 'Approve',
+            onClick: () => user.is_approved ? removeUser(user.id) : approveUser(user.id)
+          }
+        ]
+      };
+    });
+
     loading.value = false;
   } catch (err) {
     error.value = err.message;
@@ -150,7 +147,7 @@ async function updateAdmin(userId, updates) {
   padding: 20px;
 }
 
-table {
+UTable {
   width: 100%;
   border-collapse: collapse;
 }
@@ -165,7 +162,7 @@ th {
   background-color: #f2f2f2;
 }
 
-button {
+UButton {
   margin-right: 5px;
 }
 </style>

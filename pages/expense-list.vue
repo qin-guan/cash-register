@@ -1,18 +1,19 @@
 <template>
   <div>
     <h2>Expenses</h2>
-    <ul>
-      <li v-for="expense in expenses" :key="expense.id">
-        <span v-if="!editingId || editingId !== expense.id">
-          {{ expense.date }} - {{ expense.category }} - {{ expense.description }}: ${{ (expense.credit - expense.debit).toFixed(2) }}
-          <button @click="startEditing(expense)">Edit</button>
-          <button @click="deleteExpense(expense.id)">Delete</button>
-        </span>
-        <span v-else>
-          <ExpenseForm :expense="editForm" :categories="categories" submitButtonText="Save" @submit="updateExpense" @cancel="cancelEditing" />
-        </span>
-      </li>
-    </ul>
+    <UTable :rows="entries">
+      <template #actions-data="{ row }">
+        <UButton size="sm" color="primary" variant="link" @click="startEditing(row)">Edit</UButton>
+        <UButton size="sm" color="red" variant="link" @click="deleteExpense(row.id)">Delete</UButton>
+      </template>
+    </UTable>
+
+    <ExpenseForm
+      v-if="editingId !== null"
+      :expense="editForm"
+      @save="updateExpense"
+      @cancel="cancelEditing"
+    />
   </div>
 </template>
 
@@ -29,6 +30,7 @@ const editForm = ref<Expense>({
   date: '',
   category: ''
 });
+const entries = ref([]);
 
 const categories = ref<string[]>([]);
 
@@ -43,14 +45,37 @@ async function fetchExpenses() {
       throw new Error('Failed to fetch expenses');
     }
     expenses.value = await response.json();
+
+    entries.value = expenses.value.map(expense => {
+      return {
+        id: expense.id,
+        date: expense.date,
+        category: expense.category,
+        description: expense.description,
+        amount: (expense.credit - expense.debit).toFixed(2),
+        actions: [
+          {
+            label: 'Edit',
+            onClick: () => startEditing(expense)
+          },
+          {
+            label: 'Delete',
+            onClick: () => deleteExpense(expense.id)
+          }
+        ]
+      }
+    });
   } catch (error) {
     console.error('Error fetching expenses:', error);
   }
 }
 
-function startEditing(expense: Expense) {
-  editingId.value = expense.id;
-  editForm.value = { ...expense };
+function startEditing(row: any) {
+  editingId.value = row.id;
+  const expense = expenses.value.find(e => e.id === row.id);
+  if (expense) {
+    editForm.value = { ...expense };
+  }
 }
 
 function cancelEditing() {
@@ -81,6 +106,18 @@ async function updateExpense(updatedExpense: Expense) {
     const index = expenses.value.findIndex(expense => expense.id === editingId.value);
     expenses.value.splice(index, 1, refreshedExpense);
 
+    // Update entries
+    const updatedEntry = {
+      id: refreshedExpense.id,
+      date: refreshedExpense.date,
+      category: refreshedExpense.category,
+      description: refreshedExpense.description,
+      amount: (refreshedExpense.credit - refreshedExpense.debit).toFixed(2),
+      actions: entries.value.find(e => e.id === refreshedExpense.id)?.actions
+    };
+    const entryIndex = entries.value.findIndex(e => e.id === refreshedExpense.id);
+    entries.value.splice(entryIndex, 1, updatedEntry);
+
     cancelEditing();
   } catch (error) {
     console.error('Error updating expense:', error);
@@ -96,8 +133,10 @@ async function deleteExpense(id: number) {
       throw new Error('Failed to delete expense');
     }
     expenses.value = expenses.value.filter(expense => expense.id !== id);
+    entries.value = entries.value.filter(entry => entry.id !== id);
   } catch (error) {
     console.error('Error deleting expense:', error);
   }
 }
+
 </script>

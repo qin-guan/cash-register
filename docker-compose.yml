@@ -1,8 +1,8 @@
 version: "3"
 services:
   cash-register:
-    # Use the built image from the Dockerfile
-    image: cash-register  # You might need to specify a tag if you're building multiple images
+    restart: always
+    build: .
     ports:
       - "14321:3000"
     volumes:

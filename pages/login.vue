@@ -1,18 +1,21 @@
 <template>
-  <div>
-    <h2>Login</h2>
+  <UContainer>
+    <h1 center>Login</h1>
+  </UContainer>
+  <UCard>
     <form @submit.prevent="login">
-      <div>
+      <UContainer>
         <label for="username">Username:</label>
-        <input type="text" id="username" v-model="username" required>
-      </div>
-      <div>
+        <UInput type="text" id="username" v-model="username" required />
+      </UContainer>
+      <UContainer>
         <label for="password">Password:</label>
-        <input type="password" id="password" v-model="password" required>
-      </div>
-      <button type="submit">Login</button>
+        <UInput type="password" id="password" v-model="password" required />
+      </UContainer>
+      <br/>
+      <UButton block type="submit">Login</UButton>
     </form>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">

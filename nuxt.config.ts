@@ -5,7 +5,23 @@ const sw = process.env.SW === 'true'
 export default defineNuxtConfig({
   /* ssr: false, */
   // typescript,
-  modules: ['@vite-pwa/nuxt'],
+  modules: ['@vite-pwa/nuxt', '@nuxt/ui', "@nuxt/fonts"],
+  colorMode: {
+    preference: 'system', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    hid: 'nuxt-color-mode-script',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    classSuffix: '-mode',
+    storageKey: 'nuxt-color-mode'
+  },
+
+  fonts: {
+    defaults: {
+      weights: [600],
+    },
+  },
 
   future: {
     typescriptBundlerResolution: true,

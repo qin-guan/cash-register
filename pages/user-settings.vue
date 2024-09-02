@@ -1,19 +1,19 @@
 <!-- components/user-settings.vue -->
 <template>
-  <div>
-    <form @submit.prevent="updateSettings">
-      <div>
+  <UContainer>
+    <UForm @submit.prevent="updateSettings">
+      <UContainer>
         <label for="username">New Username:</label>
-        <input type="text" id="username" v-model="newUsername" required>
-      </div>
-      <div>
+        <UInput type="text" id="username" v-model="newUsername" required />
+      </UContainer>
+      <UContainer>
         <label for="password">New Password:</label>
-        <input type="password" id="password" v-model="newPassword" required>
-      </div>
-      <button type="submit">Update Settings</button>
-    </form>
+        <UInput type="password" id="password" v-model="newPassword" required />
+      </UContainer>
+      <UButton type="submit">Update Settings</UButton>
+    </UForm>
     <p v-if="message">{{ message }}</p>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
@@ -55,13 +55,13 @@ function updateSettings() {
 </script>
 
 <style scoped>
-form {
+UForm {
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-width: 300px;
 }
-input {
+UInput {
   padding: 5px;
 }
 button {

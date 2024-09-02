@@ -1,25 +1,25 @@
 <template>
-  <div>
+  <UContainer>
     <h1>Manage Categories</h1>
     <ul>
       <li v-for="category in categories" :key="category.id">
-        <div v-if="editCategoryId === category.id">
-          <input v-model="editCategoryName" />
-          <button @click="updateCategory(category.id)">Update</button>
-          <button @click="cancelEdit">Cancel</button>
-        </div>
-        <div v-else>
+        <UContainer v-if="editCategoryId === category.id">
+          <UInput v-model="editCategoryName" />
+          <UButton @click="updateCategory(category.id)">Update</UButton>
+          <UButton @click="cancelEdit">Cancel</UButton>
+        </UContainer>
+        <UContainer v-else>
           {{ category.name }}
-          <button @click="startEditCategory(category.id, category.name)">Edit</button>
-          <button @click="deleteCategory(category.id)">Delete</button>
-        </div>
+          <UButton @click="startEditCategory(category.id, category.name)">Edit</UButton>
+          <UButton @click="deleteCategory(category.id)">Delete</UButton>
+        </UContainer>
       </li>
     </ul>
     <form @submit.prevent="addCategory">
-      <input v-model="newCategory" placeholder="New Category" required />
-      <button type="submit">Add Category</button>
+      <UInput v-model="newCategory" placeholder="New Category" required />
+      <UButton type="submit">Add Category</UButton>
     </form>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">

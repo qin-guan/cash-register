@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <UContainer>
     <h1>Expense Tracker</h1>
     <ExpenseForm :expense="newExpense" :categories="categories" submitButtonText="Add Expense" @submit="addExpense" />
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">

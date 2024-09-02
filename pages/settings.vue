@@ -1,25 +1,21 @@
 <!-- pages/settings.vue -->
 <template>
-  <div>
+  <UContainer>
     <h2>User Settings</h2>
-    <div class="tabs">
-      <button @click="selectedSettingsTab = 'user-settings'" :class="{ active: selectedSettingsTab === 'user-settings' }">User Settings</button>
-      <button v-if="isAdmin" @click="selectedSettingsTab = 'admin'" :class="{ active: selectedSettingsTab === 'admin' }">Admin</button>
-      <button v-if="isAdmin" @click="selectedSettingsTab = 'manage-categories'" :class="{ active: selectedSettingsTab === 'manage-categories' }">Manage Categories</button>
-    </div>
+    <UTabs :items="items" @change="onChange"/>
 
-    <div v-if="selectedSettingsTab === 'user-settings'">
+    <UContainer v-if="selectedSettingsTab === 'user-settings'">
       <UserSettings />
-    </div>
+    </UContainer>
 
-    <div v-else-if="selectedSettingsTab === 'admin' && isAdmin">
+    <UContainer v-else-if="selectedSettingsTab === 'admin' && isAdmin">
       <AdminPage />
-    </div>
+    </UContainer>
 
-    <div v-else-if="selectedSettingsTab === 'manage-categories' && isAdmin">
+    <UContainer v-else-if="selectedSettingsTab === 'manage-categories' && isAdmin">
       <ManageCategoriesPage />
-    </div>
-  </div>
+    </UContainer>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
@@ -32,9 +28,30 @@ const { getItem } = useLocalStorage();
 const selectedSettingsTab = ref('user-settings');
 const isAdmin = ref(false);
 
+const items = [
+  {
+    label: 'User Settings',
+    slot: 'user-settings',
+  },
+  {
+    label: 'Admin',
+    slot: 'admin',
+    disabled: !isAdmin.value,
+  },
+  {
+    label: 'Manage Categories',
+    slot: 'manage-categories',
+    disabled: !isAdmin.value,
+  },
+];
+
 onMounted(async () => {
   await checkLoginStatus();
 });
+
+function onChange(index: number) {
+  selectedSettingsTab.value = items[index].slot;
+}
 
 async function checkLoginStatus() {
   const token = getItem('authToken');
@@ -69,14 +86,14 @@ async function checkAdminStatus(token: string) {
   display: flex;
   margin-bottom: 20px;
 }
-.tabs button {
+.tabs UButton {
   padding: 10px 20px;
   margin-right: 10px;
   border: none;
   background-color: #f0f0f0;
   cursor: pointer;
 }
-.tabs button.active {
+.tabs UButton.active {
   background-color: #007bff;
   color: white;
 }
