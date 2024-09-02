@@ -1,8 +1,7 @@
-version: "3"
 services:
   cash-register:
-    restart: always
     build: .
+    restart: always
     ports:
       - "14321:3000"
     volumes:

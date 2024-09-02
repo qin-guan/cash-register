@@ -10,11 +10,11 @@ COPY package.json ./
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Install dependencies
-RUN pnpm install
-
 # Copy the rest of the application code
 COPY . .
+
+# Install dependencies
+RUN pnpm install
 
 # Build the application
 RUN pnpm run build
