@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   /* ssr: false, */
   // typescript,
   modules: ['@vite-pwa/nuxt', '@nuxt/ui', "@nuxt/fonts"],
+  css: [ '~/assets/css/global.css' ],
   colorMode: {
     preference: 'system', // default value of $colorMode.preference
     fallback: 'dark', // fallback value if not system preference found

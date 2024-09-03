@@ -1,21 +1,26 @@
 <!-- pages/settings.vue -->
 <template>
-  <UContainer>
-    <h2>User Settings</h2>
-    <UTabs :items="items" @change="onChange"/>
+  <div class="settings-container">
+    <div class="settings-banner">
+      <h2>User Settings</h2>
+    </div>
+    
+    <UContainer class="settings-content">
+      <UTabs :items="items" @change="onChange" class="settings-tabs"/>
 
-    <UContainer v-if="selectedSettingsTab === 'user-settings'">
-      <UserSettings />
-    </UContainer>
+      <UContainer v-if="selectedSettingsTab === 'user-settings'">
+        <UserSettings />
+      </UContainer>
 
-    <UContainer v-else-if="selectedSettingsTab === 'admin' && isAdmin">
-      <AdminPage />
-    </UContainer>
+      <UContainer v-else-if="selectedSettingsTab === 'admin' && isAdmin">
+        <AdminPage />
+      </UContainer>
 
-    <UContainer v-else-if="selectedSettingsTab === 'manage-categories' && isAdmin">
-      <ManageCategoriesPage />
+      <UContainer v-else-if="selectedSettingsTab === 'manage-categories'">
+        <ManageCategoriesPage />
+      </UContainer>
     </UContainer>
-  </UContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +31,7 @@ import UserSettings from './user-settings.vue';
 const { getItem } = useLocalStorage();
 
 const selectedSettingsTab = ref('user-settings');
-const isAdmin = ref(false);
+const isAdmin = ref(true);
 
 const items = [
   {
@@ -41,7 +46,6 @@ const items = [
   {
     label: 'Manage Categories',
     slot: 'manage-categories',
-    disabled: !isAdmin.value,
   },
 ];
 
@@ -82,19 +86,45 @@ async function checkAdminStatus(token: string) {
 </script>
 
 <style scoped>
-.tabs {
+.settings-container {
   display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.settings-banner {
+  background-color: #0056b3; /* A slightly darker shade than the main banner */
+  color: white;
+  padding: 8px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+.settings-banner h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.settings-content {
+  margin-top: 60px; /* Adjust based on your banner height */
+  padding: 20px;
+}
+
+.settings-tabs {
   margin-bottom: 20px;
 }
-.tabs UButton {
-  padding: 10px 20px;
+
+.settings-tabs :deep(.u-tab) {
+  padding: 8px 15px;
   margin-right: 10px;
-  border: none;
-  background-color: #f0f0f0;
   cursor: pointer;
+  border-bottom: 2px solid transparent;
 }
-.tabs UButton.active {
-  background-color: #007bff;
-  color: white;
+
+.settings-tabs :deep(.u-tab.active) {
+  border-bottom: 2px solid #0056b3;
 }
 </style>

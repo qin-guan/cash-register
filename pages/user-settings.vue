@@ -1,18 +1,16 @@
-<!-- components/user-settings.vue -->
 <template>
-  <UContainer>
-    <UForm @submit.prevent="updateSettings">
-      <UContainer>
-        <label for="username">New Username:</label>
+  <UContainer class="settings-container">
+    <h2>User Settings</h2>
+    <UForm @submit.prevent="updateSettings" class="settings-form">
+      <UFormGroup label="New Username" name="username">
         <UInput type="text" id="username" v-model="newUsername" required />
-      </UContainer>
-      <UContainer>
-        <label for="password">New Password:</label>
+      </UFormGroup>
+      <UFormGroup label="New Password" name="password">
         <UInput type="password" id="password" v-model="newPassword" required />
-      </UContainer>
-      <UButton type="submit">Update Settings</UButton>
+      </UFormGroup>
+      <UButton type="submit" color="primary" class="update-button">Update Settings</UButton>
     </UForm>
-    <p v-if="message">{{ message }}</p>
+    <p v-if="message" class="message">{{ message }}</p>
   </UContainer>
 </template>
 
@@ -55,23 +53,47 @@ function updateSettings() {
 </script>
 
 <style scoped>
-UForm {
+.settings-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.settings-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 300px;
+  gap: 20px;
 }
-UInput {
-  padding: 5px;
+
+:deep(.form-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
-button {
+
+:deep(.form-group label) {
+  font-weight: bold;
+}
+
+:deep(.form-group input) {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
-button:hover {
-  background-color: #0056b3;
+
+.update-button {
+  align-self: flex-start;
+  padding: 10px 20px;
+}
+
+.message {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
 }
 </style>

@@ -1,24 +1,42 @@
 <template>
-  <UContainer>
-    <h1>Manage Categories</h1>
-    <ul>
-      <li v-for="category in categories" :key="category.id">
-        <UContainer v-if="editCategoryId === category.id">
-          <UInput v-model="editCategoryName" />
-          <UButton @click="updateCategory(category.id)">Update</UButton>
-          <UButton @click="cancelEdit">Cancel</UButton>
-        </UContainer>
-        <UContainer v-else>
-          {{ category.name }}
-          <UButton @click="startEditCategory(category.id, category.name)">Edit</UButton>
-          <UButton @click="deleteCategory(category.id)">Delete</UButton>
-        </UContainer>
-      </li>
-    </ul>
-    <form @submit.prevent="addCategory">
-      <UInput v-model="newCategory" placeholder="New Category" required />
-      <UButton type="submit">Add Category</UButton>
-    </form>
+  <UContainer class="categories-container">
+    <h1 class="page-title">Manage Categories</h1>
+    
+    <UCard class="categories-table">
+      <UTable :rows="categories" :columns="columns">
+        <template #actions-data="{ row }">
+          <UDropdown :items="actions(row)">
+            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+          </UDropdown>
+        </template>
+      </UTable>
+    </UCard>
+
+    <UModal v-model="isEditModalOpen">
+      <UCard>
+        <template #header>
+          <h3 class="modal-title">Edit Category</h3>
+        </template>
+        <UForm :state="editFormState" @submit="updateCategory" class="edit-form">
+          <UFormGroup label="Category Name" name="name">
+            <UInput v-model="editFormState.name" />
+          </UFormGroup>
+          <div class="modal-actions">
+            <UButton color="gray" @click="isEditModalOpen = false">Cancel</UButton>
+            <UButton type="submit" color="primary">Update</UButton>
+          </div>
+        </UForm>
+      </UCard>
+    </UModal>
+
+    <UCard class="new-category-form">
+      <UForm :state="newCategoryState" @submit="addCategory">
+        <UFormGroup label="New Category" name="name">
+          <UInput v-model="newCategoryState.name" placeholder="Enter new category name" />
+        </UFormGroup>
+        <UButton type="submit" color="primary" class="add-button">Add Category</UButton>
+      </UForm>
+    </UCard>
   </UContainer>
 </template>
 
@@ -31,13 +49,36 @@ interface Category {
 }
 
 const categories = ref<Category[]>([]);
-const newCategory = ref('');
-const editCategoryId = ref<number | null>(null);
-const editCategoryName = ref('');
+const columns = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Name' },
+  { key: 'actions', label: 'Actions' },
+];
+
+const isEditModalOpen = ref(false);
+const editFormState = ref({ id: null, name: '' });
+const newCategoryState = ref({ name: '' });
 
 onMounted(async () => {
   await fetchCategories();
 });
+
+function actions(row: Category) {
+  return [
+    [
+      {
+        label: 'Edit',
+        icon: 'i-heroicons-pencil-square-20-solid',
+        click: () => startEditCategory(row),
+      },
+      {
+        label: 'Delete',
+        icon: 'i-heroicons-trash-20-solid',
+        click: () => deleteCategory(row.id),
+      },
+    ],
+  ];
+}
 
 async function fetchCategories() {
   try {
@@ -48,41 +89,38 @@ async function fetchCategories() {
       console.error('Failed to fetch categories');
     }
   } catch (error) {
-    console.error('Error fetching categories:', error); 
-  } 
+    console.error('Error fetching categories:', error);
+  }
 }
 
-async function addCategory() { 
-  try { 
-    const response = await fetch('/api/categories', 
-    { 
-      method: 'POST', 
-      headers: { 
-        'Content-Type': 'application/json', 
-      }, 
-      body: JSON.stringify({ name: newCategory.value }), 
+async function addCategory() {
+  try {
+    const response = await fetch('/api/categories', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: newCategoryState.value.name }),
     });
 
     if (response.ok) {
       const addedCategory = await response.json();
       categories.value.push(addedCategory);
-      newCategory.value = '';
+      newCategoryState.value.name = '';
     } else {
       const errorData = await response.json();
       throw new Error(errorData.statusMessage || 'Failed to add category');
     }
-  } catch (error) { 
-    alert('Failed to add category. Please try again.'); 
-  } 
+  } catch (error) {
+    alert('Failed to add category. Please try again.');
+  }
 }
 
 async function deleteCategory(categoryId: number) {
-  try { 
-    const response = await fetch(`/api/categories/${categoryId}`, 
-      {
-        method: 'DELETE', 
-      }
-    );
+  try {
+    const response = await fetch(`/api/categories/${categoryId}`, {
+      method: 'DELETE',
+    });
 
     if (response.ok) {
       categories.value = categories.value.filter(category => category.id !== categoryId);
@@ -90,38 +128,33 @@ async function deleteCategory(categoryId: number) {
       const errorData = await response.json();
       throw new Error(errorData.statusMessage || 'Failed to delete category');
     }
-  } catch (error) { 
-    alert('Failed to delete category. Please try again.'); 
-  } 
+  } catch (error) {
+    alert('Failed to delete category. Please try again.');
+  }
 }
 
-function startEditCategory(id: number, name: string) {
-  editCategoryId.value = id;
-  editCategoryName.value = name;
+function startEditCategory(category: Category) {
+  editFormState.value = { ...category };
+  isEditModalOpen.value = true;
 }
 
-function cancelEdit() {
-  editCategoryId.value = null;
-  editCategoryName.value = '';
-}
-
-async function updateCategory(categoryId: number) {
+async function updateCategory() {
   try {
-    const response = await fetch(`/api/categories/${categoryId}`, {
+    const response = await fetch(`/api/categories/${editFormState.value.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: editCategoryName.value }),
+      body: JSON.stringify({ name: editFormState.value.name }),
     });
 
     if (response.ok) {
       const updatedCategory = await response.json();
-      const index = categories.value.findIndex(category => category.id === categoryId);
+      const index = categories.value.findIndex(category => category.id === updatedCategory.id);
       if (index !== -1) {
         categories.value[index] = updatedCategory;
       }
-      cancelEdit();
+      isEditModalOpen.value = false;
     } else {
       const errorData = await response.json();
       throw new Error(errorData.statusMessage || 'Failed to update category');
@@ -131,3 +164,65 @@ async function updateCategory(categoryId: number) {
   }
 }
 </script>
+
+<style scoped>
+.categories-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.categories-table {
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: semibold;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.new-category-form {
+  margin-top: 20px;
+}
+
+:deep(.form-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+:deep(.form-group label) {
+  font-weight: bold;
+}
+
+:deep(.form-group input) {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-button {
+  align-self: flex-start;
+}
+</style>

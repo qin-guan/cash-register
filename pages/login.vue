@@ -1,21 +1,39 @@
 <template>
-  <UContainer>
-    <h1 center>Login</h1>
-  </UContainer>
-  <UCard>
-    <form @submit.prevent="login">
-      <UContainer>
-        <label for="username">Username:</label>
-        <UInput type="text" id="username" v-model="username" required />
-      </UContainer>
-      <UContainer>
-        <label for="password">Password:</label>
-        <UInput type="password" id="password" v-model="password" required />
-      </UContainer>
-      <br/>
-      <UButton block type="submit">Login</UButton>
-    </form>
-  </UCard>
+  <div class="container">
+    <UCard class="login-card">
+      <h1 class="text-center mb-lg">Login</h1>
+      <form @submit.prevent="login" class="login-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Username:</label>
+          <UInput
+            type="text"
+            id="username"
+            v-model="username"
+            class="form-input"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password" class="form-label">Password:</label>
+          <UInput
+            type="password"
+            id="password"
+            v-model="password"
+            class="form-input"
+            required
+          />
+        </div>
+        <UButton
+          type="submit"
+          color="primary"
+          block
+          class="btn btn-primary login-button"
+        >
+          Login
+        </UButton>
+      </form>
+    </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -35,9 +53,7 @@ async function login() {
     });
 
     if (response.token) {
-      // Store the token in localStorage
       setItem('authToken', response.token);
-      // Redirect to the home page
       router.push('/');
     } else {
       throw new Error('No token received');
@@ -45,7 +61,6 @@ async function login() {
   } catch (error) {
     console.error('Login error:', error);
 
-    // Handle specific error for account not approved
     if (error.status === 403 && error.data?.statusMessage === 'Account not approved by admin') {
       alert('Your account is awaiting admin approval.');
     } else {
@@ -54,3 +69,20 @@ async function login() {
   }
 }
 </script>
+
+<style scoped>
+.login-card {
+  max-width: 400px;
+  margin: var(--spacing-xl) auto;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.login-button {
+  margin-top: var(--spacing-md);
+}
+</style>

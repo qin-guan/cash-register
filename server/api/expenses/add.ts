@@ -1,16 +1,16 @@
-import { defineEventHandler, readBody, createError } from 'h3';
-import db, { Expense } from './expenses-db';
+import { defineEventHandler, readBody, createError } from "h3";
+import db, { Expense } from "./expenses-db";
 
 export default defineEventHandler(async (event) => {
   const expense: Expense = await readBody(event);
 
-  console.log('Received expense:', expense);
+  console.log("Received expense:", expense);
 
   // Ensure all required fields are present
   if ((!expense.credit && !expense.debit) || !expense.description || !expense.date || !expense.category) {
     return createError({
       statusCode: 400,
-      statusMessage: 'Missing required fields',
+      statusMessage: "Missing required fields",
     });
   }
 
@@ -26,10 +26,10 @@ export default defineEventHandler(async (event) => {
 
     return { id: nextId, ...expense };
   } catch (err: unknown) {
-    console.error('Error inserting expense:', err);
+    console.error("Error inserting expense:", err);
     return createError({
       statusCode: 500,
-      statusMessage: 'Error inserting expense: ' + getErrorMessage(err),
+      statusMessage: "Error inserting expense: " + getErrorMessage(err),
     });
   }
 });

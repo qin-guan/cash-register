@@ -1,30 +1,33 @@
 <!-- pages/index.vue -->
 <template>
-  <UContainer v-if="isLoggedIn">
-    <h1>Expense Tracker</h1>
+  <div class="app-container">
+    <UContainer v-if="isLoggedIn" class="main-container">
+      <div class="banner">
+        <h1>Expense Tracker</h1>
+        <UTabs :items="items" @change="onChange" class="banner-tabs"/>
+      </div>
 
-    <UContainer class="header">
-      <UTabs :items="items" @change="onChange"/>
-    </UContainer>
+      <div class="content">
+        <UContainer v-if="selectedTab === 'form'">
+          <ExpenseForm />
+        </UContainer>
+        <UContainer v-else-if="selectedTab === 'list'">
+          <ExpenseList />
+        </UContainer>
+        <UContainer v-else-if="selectedTab === 'settings'">
+          <SettingsPage :isAdmin="isAdmin" />
+        </UContainer>
+      </div>
 
-    <UContainer v-if="selectedTab === 'form'">
-      <ExpenseForm />
+      <footer class="footer">
+        <UButton @click="logout" class="logout-btn">Logout</UButton>
+      </footer>
     </UContainer>
-    <UContainer v-else-if="selectedTab === 'list'">
-      <ExpenseList />
+    <UContainer v-else>
+      <p>You need to log in to access the expense tracker.</p>
+      <router-link to="/login">Login</router-link>
     </UContainer>
-    <UContainer v-else-if="selectedTab === 'settings'">
-      <SettingsPage :isAdmin="isAdmin" />
-    </UContainer>
-
-    <br />
-
-    <UButton @click="logout" class="logout-btn">Logout</UButton>
-  </UContainer>
-  <UContainer v-else>
-    <p>You need to log in to access the expense tracker.</p>
-    <router-link to="/login">Login</router-link>
-  </UContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -100,28 +103,68 @@ function logout() {
 </script>
 
 <style scoped>
-.header {
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px; /* Adjust this value based on your banner height */
+  padding-bottom: 60px; /* Adjust this value based on your footer height */
+}
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  z-index: 1000;
 }
 
-.tabs {
+.banner h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.banner-tabs {
   display: flex;
 }
 
-.tabs UButton {
-  padding: 10px 20px;
+.banner-tabs :deep(.u-tab) {
+  color: white;
+  padding: 10px 15px;
   margin-right: 10px;
-  border: none;
-  background-color: #f0f0f0;
   cursor: pointer;
+  border-bottom: 2px solid transparent;
 }
 
-.tabs UButton.active {
-  background-color: #007bff;
-  color: white;
+.banner-tabs :deep(.u-tab.active) {
+  border-bottom: 2px solid white;
+}
+
+.content {
+  flex: 1;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: 10px 20px;
+  text-align: right;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
 
 .logout-btn {

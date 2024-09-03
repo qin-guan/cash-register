@@ -1,12 +1,18 @@
 <!-- pages/admin.vue -->
 <template>
-  <UContainer class="admin-page">
-    <h1>Admin Dashboard</h1>
-    <UContainer v-if="loading">Loading...</UContainer>
-    <UContainer v-else-if="error">{{ error }}</UContainer>
-    <UContainer v-else>
-      <UTable :rows="rows" />
-    </UContainer>
+  <UContainer class="admin-container">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <UCard v-if="loading" class="loading-card">Loading...</UCard>
+    <UCard v-else-if="error" class="error-card">{{ error }}</UCard>
+    <UCard v-else class="users-table">
+      <UTable :rows="rows" :columns="columns">
+        <template #actions-data="{ row }">
+          <UDropdown :items="actions(row)">
+            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+          </UDropdown>
+        </template>
+      </UTable>
+    </UCard>
   </UContainer>
 </template>
 
@@ -19,7 +25,15 @@ const router = useRouter();
 const users = ref([]);
 const loading = ref(true);
 const error = ref(null);
+
 const rows = ref([]);
+const columns = [
+  {key: 'id', label: 'ID'},
+  {key: 'name', label: 'Name'},
+  {key: 'role', label: 'Role'},
+  {key: 'status', label: 'Status'},
+  {key: 'actions', label: 'Actions'},
+]
 
 onMounted(async () => {
   try {
@@ -40,16 +54,6 @@ onMounted(async () => {
         name: user.username,
         role: user.is_admin ? 'Admin' : 'User',
         status: user.is_approved ? 'Approved' : 'Pending',
-        actions: [
-          {
-            label: user.is_approved && !user.is_admin ? 'Promote' : 'Demote',
-            onClick: () => user.is_admin ? demoteUser(user.id) : promoteUser(user.id)
-          },
-          {
-            label: user.is_approved ? 'Remove' : 'Approve',
-            onClick: () => user.is_approved ? removeUser(user.id) : approveUser(user.id)
-          }
-        ]
       };
     });
 
@@ -59,6 +63,21 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+function actions(row) {
+  return [[
+    {
+      label: row.status === 'Approved' && row.role === 'User' ? 'Promote' : 'Demote',
+      icon: row.role === 'User' ? 'i-heroicons-arrow-up-on-square-20-solid' : 'i-heroicons-arrow-down-on-square-20-solid',
+      click: () => row.role === 'Admin' ? demoteUser(row.id) : promoteUser(row.id)
+    },
+    {
+      label: row.status === 'Approved' ? 'Remove' : 'Approve',
+      icon: 'i-heroicons-check-circle-20-solid',
+      click: () => row.status === 'Approved' ? removeUser(row.id) : approveUser(row.id)
+    }
+  ]]
+}
 
 async function promoteUser(userId) {
   await updateAdmin(userId, { is_admin: true });
@@ -141,10 +160,17 @@ async function updateAdmin(userId, updates) {
 </script>
 
 <style scoped>
-.admin-page {
-  max-width: 800px;
+.admin-container {
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 UTable {
