@@ -1,32 +1,24 @@
-<!-- pages/index.vue -->
 <template>
   <div class="app-container">
-    <UContainer v-if="isLoggedIn" class="main-container">
+    <div v-if="isLoggedIn" class="main-container">
       <div class="banner">
-        <h1>Expense Tracker</h1>
         <UTabs :items="items" @change="onChange" class="banner-tabs"/>
       </div>
 
       <div class="content">
-        <UContainer v-if="selectedTab === 'form'">
-          <ExpenseForm />
-        </UContainer>
-        <UContainer v-else-if="selectedTab === 'list'">
-          <ExpenseList />
-        </UContainer>
-        <UContainer v-else-if="selectedTab === 'settings'">
-          <SettingsPage :isAdmin="isAdmin" />
-        </UContainer>
+        <ExpenseForm v-if="selectedTab === 'form'" />
+        <ExpenseList v-else-if="selectedTab === 'list'" />
+        <SettingsPage v-else-if="selectedTab === 'settings'" :isAdmin="isAdmin" />
       </div>
 
       <footer class="footer">
         <UButton @click="logout" class="logout-btn">Logout</UButton>
       </footer>
-    </UContainer>
-    <UContainer v-else>
+    </div>
+    <div v-else>
       <p>You need to log in to access the expense tracker.</p>
       <router-link to="/login">Login</router-link>
-    </UContainer>
+    </div>
   </div>
 </template>
 
@@ -103,18 +95,27 @@ function logout() {
 </script>
 
 <style scoped>
+.full-width {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .main-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding-top: 80px; /* Adjust this value based on your banner height */
-  padding-bottom: 60px; /* Adjust this value based on your footer height */
+  width: 100%;
+  padding-top: 60px;
+  padding-bottom: 40px;
 }
 
 .banner {
@@ -126,7 +127,7 @@ function logout() {
   color: white;
   padding: 10px 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   z-index: 1000;
 }
@@ -154,6 +155,16 @@ function logout() {
 
 .content {
   flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.settings-container {
+  width: 100%;
+  max-width: 800px; /* Limit the maximum width of the settings container */
+  overflow-x: auto;
 }
 
 .footer {
@@ -177,5 +188,19 @@ function logout() {
 
 .logout-btn:hover {
   background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding-top: 60px;
+    padding-bottom: 30px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-container {
+    padding-top: 60px;
+    padding-bottom: 20px;
+  }
 }
 </style>

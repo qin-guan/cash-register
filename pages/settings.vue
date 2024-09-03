@@ -1,25 +1,18 @@
-<!-- pages/settings.vue -->
 <template>
   <div class="settings-container">
     <div class="settings-banner">
       <h2>User Settings</h2>
     </div>
     
-    <UContainer class="settings-content">
+    <div class="settings-content">
       <UTabs :items="items" @change="onChange" class="settings-tabs"/>
 
-      <UContainer v-if="selectedSettingsTab === 'user-settings'">
-        <UserSettings />
-      </UContainer>
-
-      <UContainer v-else-if="selectedSettingsTab === 'admin' && isAdmin">
-        <AdminPage />
-      </UContainer>
-
-      <UContainer v-else-if="selectedSettingsTab === 'manage-categories'">
-        <ManageCategoriesPage />
-      </UContainer>
-    </UContainer>
+      <div class="settings-tab-content">
+        <UserSettings v-if="selectedSettingsTab === 'user-settings'" />
+        <AdminPage v-else-if="selectedSettingsTab === 'admin' && isAdmin" />
+        <ManageCategoriesPage v-else-if="selectedSettingsTab === 'manage-categories'" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -46,6 +39,7 @@ const items = [
   {
     label: 'Manage Categories',
     slot: 'manage-categories',
+    disabled: !isAdmin.value,
   },
 ];
 
@@ -90,10 +84,12 @@ async function checkAdminStatus(token: string) {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .settings-banner {
-  background-color: #0056b3; /* A slightly darker shade than the main banner */
+  background-color: #0056b3;
   color: white;
   padding: 8px 20px;
   position: fixed;
@@ -109,8 +105,12 @@ async function checkAdminStatus(token: string) {
 }
 
 .settings-content {
-  margin-top: 60px; /* Adjust based on your banner height */
   padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .settings-tabs {
@@ -126,5 +126,9 @@ async function checkAdminStatus(token: string) {
 
 .settings-tabs :deep(.u-tab.active) {
   border-bottom: 2px solid #0056b3;
+}
+
+.settings-tab-content {
+  width: 100%;
 }
 </style>

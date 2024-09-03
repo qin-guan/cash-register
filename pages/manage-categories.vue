@@ -1,8 +1,8 @@
 <template>
-  <UContainer class="categories-container">
-    <h1 class="page-title">Manage Categories</h1>
+  <div class="categories-container">
+    <h2 class="page-title">Manage Categories</h2>
     
-    <UCard class="categories-table">
+    <div class="categories-table">
       <UTable :rows="categories" :columns="columns">
         <template #actions-data="{ row }">
           <UDropdown :items="actions(row)">
@@ -10,13 +10,11 @@
           </UDropdown>
         </template>
       </UTable>
-    </UCard>
+    </div>
 
     <UModal v-model="isEditModalOpen">
-      <UCard>
-        <template #header>
-          <h3 class="modal-title">Edit Category</h3>
-        </template>
+      <div class="edit-modal">
+        <h3 class="modal-title">Edit Category</h3>
         <UForm :state="editFormState" @submit="updateCategory" class="edit-form">
           <UFormGroup label="Category Name" name="name">
             <UInput v-model="editFormState.name" />
@@ -26,18 +24,18 @@
             <UButton type="submit" color="primary">Update</UButton>
           </div>
         </UForm>
-      </UCard>
+      </div>
     </UModal>
 
-    <UCard class="new-category-form">
+    <div class="new-category-form">
       <UForm :state="newCategoryState" @submit="addCategory">
         <UFormGroup label="New Category" name="name">
           <UInput v-model="newCategoryState.name" placeholder="Enter new category name" />
         </UFormGroup>
         <UButton type="submit" color="primary" class="add-button">Add Category</UButton>
       </UForm>
-    </UCard>
-  </UContainer>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -167,9 +165,9 @@ async function updateCategory() {
 
 <style scoped>
 .categories-container {
+  width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .page-title {
@@ -181,11 +179,17 @@ async function updateCategory() {
 
 .categories-table {
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .modal-title {
   font-size: 18px;
   font-weight: semibold;
+  margin-bottom: 15px;
+}
+
+.edit-modal {
+  padding: 20px;
 }
 
 .edit-form {

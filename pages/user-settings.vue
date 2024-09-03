@@ -1,6 +1,7 @@
 <template>
-  <UContainer class="settings-container">
-    <h2>User Settings</h2>
+  <div class="settings-container">
+    <h2 class="page-title">User Settings</h2>
+
     <UForm @submit.prevent="updateSettings" class="settings-form">
       <UFormGroup label="New Username" name="username">
         <UInput type="text" id="username" v-model="newUsername" required />
@@ -11,7 +12,7 @@
       <UButton type="submit" color="primary" class="update-button">Update Settings</UButton>
     </UForm>
     <p v-if="message" class="message">{{ message }}</p>
-  </UContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,14 +55,16 @@ function updateSettings() {
 
 <style scoped>
 .settings-container {
-  max-width: 400px;
+  width: 100%;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
 }
 
-h2 {
-  text-align: center;
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .settings-form {

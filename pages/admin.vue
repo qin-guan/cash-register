@@ -1,19 +1,21 @@
-<!-- pages/admin.vue -->
 <template>
-  <UContainer class="admin-container">
-    <h1 class="page-title">Admin Dashboard</h1>
-    <UCard v-if="loading" class="loading-card">Loading...</UCard>
-    <UCard v-else-if="error" class="error-card">{{ error }}</UCard>
-    <UCard v-else class="users-table">
-      <UTable :rows="rows" :columns="columns">
-        <template #actions-data="{ row }">
-          <UDropdown :items="actions(row)">
-            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-          </UDropdown>
-        </template>
-      </UTable>
-    </UCard>
-  </UContainer>
+  <div class="admin-container">
+    <h2 class="page-title">Admin Dashboard</h2>
+
+    <div v-if="loading" class="loading">Loading...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else class="users-table">
+      <div class="table-responsive">
+        <UTable :rows="rows" :columns="columns">
+          <template #actions-data="{ row }">
+            <UDropdown :items="actions(row)">
+              <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+            </UDropdown>
+          </template>
+        </UTable>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -161,9 +163,9 @@ async function updateAdmin(userId, updates) {
 
 <style scoped>
 .admin-container {
+  width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .page-title {
@@ -173,22 +175,47 @@ async function updateAdmin(userId, updates) {
   text-align: center;
 }
 
-UTable {
+.loading,
+.error,
+.users-table {
+  margin-bottom: 20px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+:deep(.u-table) {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+:deep(.u-table th),
+:deep(.u-table td) {
+  padding: 10px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
 }
 
-th {
+:deep(.u-table th) {
   background-color: #f2f2f2;
+  font-weight: bold;
 }
 
-UButton {
-  margin-right: 5px;
+:deep(.u-dropdown) {
+  min-width: auto;
+}
+
+@media (max-width: 768px) {
+  :deep(.u-table) {
+    font-size: 14px;
+  }
+
+  :deep(.u-table th),
+  :deep(.u-table td) {
+    padding: 8px;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <UCard class="expense-form-card">
+  <div class="expense-form-container">
     <UForm @submit.prevent="handleSubmit" class="expense-form">
       <UFormGroup label="Date" name="date">
         <UInput type="date" id="date" v-model="expenseData.date" required />
@@ -21,7 +21,7 @@
         <UButton type="button" color="gray" @click="cancelEdit">Cancel</UButton>
       </div>
     </UForm>
-  </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -88,20 +88,16 @@ function cancelEdit() {
 </script>
 
 <style scoped>
-.expense-form-card {
-  max-width: 500px;
+.expense-form-container {
+  width: 100%;
+  max-width: 600px;
   margin: 0 auto;
-  background-color: var(--color-background-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .expense-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px;
 }
 
 :deep(.form-group) {
