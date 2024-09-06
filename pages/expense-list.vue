@@ -2,66 +2,85 @@
   <div class="expense-list-container">
     <h3 class="page-title">Past Records</h3>
 
-    <div class="table-container">
-      <UTable :rows="paginatedEntries" :columns="columns" table-class="expense-table">
-        <template #actions-data="{ row }">
-          <UDropdown :items="actions(row)">
-            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-          </UDropdown>
-        </template>
-      </UTable>
+    <ExpenseFilters
+      v-model:selectedPeriod="selectedPeriod"
+      v-model:selectedCategory="selectedCategory"
+      :categoryOptions="categoryOptions"
+      @apply-filters="applyFilters"
+      @reset-filters="resetFilters"
+    />
+
+    <div class="mobile-tabs">
+      <UTabs :items="tabItems" @change="onTabChange" />
     </div>
-    <div class="pagination">
+
+    <div class="charts-container" v-show="!isMobile || activeTab === 'charts'">
+      <UTabs :items="chartTabItems" @change="onChartTabChange" />
+      <div v-if="activeChartTab === 'income-expense'">
+        <IncomeExpenseChart :chartData="barChartData" />
+      </div>
+      <div v-else-if="activeChartTab === 'category'">
+        <ExpensesByCategoryChart :chartData="pieChartData" />
+      </div>
+    </div>
+
+    <div v-show="!isMobile || activeTab === 'table'">
+      <ExpenseTable
+        :entries="paginatedEntries"
+        :columns="columns"
+        @edit="startEditing"
+        @delete="deleteExpense"
+      />
+
       <UPagination
         v-model="currentPage"
-        :total="entries.length"
+        :total="filteredEntries.length"
         :per-page="itemsPerPage"
         @change="handlePageChange"
       />
     </div>
 
-    <UModal v-model="isEditModalOpen">
-      <UCard class="edit-modal">
-        <template #header>
-          <h3 class="modal-title">Edit Expense</h3>
-        </template>
-        <ExpenseForm
-          :expense="editForm"
-          :categories="categories"
-          submitButtonText="Update"
-          @submit="handleSave"
-          @cancel="cancelEditing"
-        />
-      </UCard>
-    </UModal>
+    <EditExpenseModal
+      v-model:isOpen="isEditModalOpen"
+      :expense="editForm"
+      :categories="categories"
+      @save="handleSave"
+      @cancel="cancelEditing"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import ExpenseForm from './components/ExpenseForm.vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useExpenses } from '@/composables/useExpenses';
+import ExpenseFilters from './components/ExpenseFilters.vue';
+import IncomeExpenseChart from './components/IncomeExpenseChart.vue';
+import ExpensesByCategoryChart from './components/ExpensesByCategoryChart.vue';
+import ExpenseTable from './components/ExpenseTable.vue';
+import EditExpenseModal from './components/EditExpenseModal.vue';
 
-interface Expense {
-  id: number;
-  credit: number;
-  debit: number;
-  description: string;
-  date: string;
-  category: string;
-}
+const {
+  expenses,
+  entries,
+  categories,
+  fetchExpenses,
+  fetchCategories,
+  updateExpense,
+  deleteExpense
+} = useExpenses();
 
-const expenses = ref<Expense[]>([]);
+// Reactive variables
 const isEditModalOpen = ref(false);
-const editForm = ref<Expense>({
-  id: 0,
-  credit: 0,
-  debit: 0,
-  description: '',
-  date: '',
-  category: ''
-});
-const entries = ref([]);
+const editForm = ref({});
+const currentPage = ref(1);
+const itemsPerPage = 10;
+const selectedPeriod = ref('');
+const selectedCategory = ref('');
+const activeTab = ref('table');
+const isMobile = ref(false);
+const activeChartTab = ref('income-expense');
 
+// Constants
 const columns = [
   { key: 'date', label: 'Date' },
   { key: 'category', label: 'Category' },
@@ -70,79 +89,135 @@ const columns = [
   { key: 'actions', label: 'Actions' },
 ];
 
-const currentPage = ref(1);
-const itemsPerPage = 10;
-const categories = ref<string[]>([]);
+const tabItems = [
+  { label: 'Table', slot: 'table' },
+  { label: 'Charts', slot: 'charts' },
+];
 
-onMounted(async () => {
-  await fetchExpenses();
-  await fetchCategories();
+const chartTabItems = [
+  { label: 'Income vs Expenses', slot: 'income-expense' },
+  { label: 'Expenses by Category', slot: 'category' },
+];
+
+// Computed properties
+const categoryOptions = computed(() => [
+  { label: 'All Categories', value: '' },
+  ...categories.value.map(cat => ({ label: cat, value: cat }))
+]);
+
+const filteredEntries = computed(() => {
+  let filtered = [...entries.value];
+
+  if (selectedPeriod.value) {
+    const now = new Date();
+    const startDate = new Date();
+    
+    if (selectedPeriod.value === 'week') {
+      startDate.setDate(now.getDate() - 7);
+    } else if (selectedPeriod.value === 'month') {
+      startDate.setMonth(now.getMonth() - 1);
+    } else if (selectedPeriod.value === 'year') {
+      startDate.setFullYear(now.getFullYear() - 1);
+    }
+
+    filtered = filtered.filter(entry => new Date(entry.date) >= startDate);
+  }
+
+  if (selectedCategory.value) {
+    filtered = filtered.filter(entry => entry.category === selectedCategory.value);
+  }
+
+  return filtered.reverse();
 });
 
 const paginatedEntries = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return entries.value.slice(start, end);
+  return filteredEntries.value.slice(start, end);
 });
+
+const barChartData = computed(() => {
+  const income = filteredEntries.value.reduce((sum, entry) => sum + (entry.amount > 0 ? parseFloat(entry.amount) : 0), 0);
+  const expenses = filteredEntries.value.reduce((sum, entry) => sum + (entry.amount < 0 ? Math.abs(parseFloat(entry.amount)) : 0), 0);
+  return {
+    labels: ['Income', 'Expenses'],
+    datasets: [{
+      label: 'Amount',
+      data: [income, expenses],
+      backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+    }]
+  };
+});
+
+const pieChartData = computed(() => {
+  const expensesByCategory = filteredEntries.value
+    .filter(entry => parseFloat(entry.amount) < 0)
+    .reduce((acc, entry) => {
+      acc[entry.category] = (acc[entry.category] || 0) + Math.abs(parseFloat(entry.amount));
+      return acc;
+    }, {} as Record<string, number>);
+
+  return {
+    labels: Object.keys(expensesByCategory),
+    datasets: [{
+      data: Object.values(expensesByCategory),
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)',
+        'rgba(75, 192, 192, 0.6)',
+        'rgba(153, 102, 255, 0.6)',
+      ],
+    }]
+  };
+});
+
+// Watchers
+watch([selectedPeriod, selectedCategory], applyFilters);
+
+// Lifecycle hooks
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  fetchExpenses();
+  fetchCategories();
+});
+
+// Functions
+function checkMobile() {
+  isMobile.value = window.innerWidth <= 768;
+}
+
+function onTabChange(index: number) {
+  activeTab.value = tabItems[index].slot;
+}
+
+function onChartTabChange(index: number) {
+  activeChartTab.value = chartTabItems[index].slot;
+}
+
+function applyFilters() {
+  currentPage.value = 1;
+}
+
+function resetFilters() {
+  selectedPeriod.value = '';
+  selectedCategory.value = '';
+  currentPage.value = 1;
+}
 
 function handlePageChange(page: number) {
   currentPage.value = page;
 }
 
-function actions(row: any) {
-  return [
-    [
-      {
-        label: 'Edit',
-        icon: 'i-heroicons-pencil-square-20-solid',
-        click: () => startEditing(row),
-      },
-      {
-        label: 'Delete',
-        icon: 'i-heroicons-trash-20-solid',
-        click: () => deleteExpense(row.id),
-      },
-    ],
-  ];
+function cancelEditing() {
+  isEditModalOpen.value = false;
+  editForm.value = {};
 }
 
 function handleSave(updatedExpense: Expense) {
-  console.log("handleSave was called")
   updateExpense(updatedExpense);
-}
-
-async function fetchExpenses() {
-  try {
-    const response = await fetch('/api/expenses');
-    if (!response.ok) {
-      throw new Error('Failed to fetch expenses');
-    }
-    expenses.value = await response.json();
-
-    entries.value = expenses.value.map(expense => ({
-      id: expense.id,
-      date: expense.date,
-      category: expense.category,
-      description: expense.description,
-      amount: (expense.credit - expense.debit).toFixed(2),
-    }));
-  } catch (error) {
-    console.error('Error fetching expenses:', error);
-  }
-}
-
-async function fetchCategories() {
-  try {
-    const response = await fetch('/api/categories');
-    if (response.ok) {
-      const json = await response.json();
-      categories.value = json.map((category: { id: number, name: string }) => category.name);
-    } else {
-      console.error('Failed to fetch categories');
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
+  isEditModalOpen.value = false;
 }
 
 function startEditing(row: any) {
@@ -150,67 +225,6 @@ function startEditing(row: any) {
   if (expense) {
     editForm.value = { ...expense };
     isEditModalOpen.value = true;
-  }
-}
-
-function cancelEditing() {
-  isEditModalOpen.value = false;
-  editForm.value = {
-    id: 0,
-    credit: 0,
-    debit: 0,
-    description: '',
-    date: '',
-    category: ''
-  };
-}
-
-async function updateExpense(updatedExpense: Expense) {
-  try {
-    const response = await fetch(`/api/expenses/${updatedExpense.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updatedExpense)
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update expense');
-    }
-
-    const refreshedExpense = await response.json();
-    const index = expenses.value.findIndex(expense => expense.id === refreshedExpense.id);
-    expenses.value.splice(index, 1, refreshedExpense);
-
-    // Update entries
-    const updatedEntry = {
-      id: refreshedExpense.id,
-      date: refreshedExpense.date,
-      category: refreshedExpense.category,
-      description: refreshedExpense.description,
-      amount: (refreshedExpense.credit - refreshedExpense.debit).toFixed(2),
-    };
-    const entryIndex = entries.value.findIndex(e => e.id === refreshedExpense.id);
-    entries.value.splice(entryIndex, 1, updatedEntry);
-
-    isEditModalOpen.value = false;
-  } catch (error) {
-    console.error('Error updating expense:', error);
-  }
-}
-
-async function deleteExpense(id: number) {
-  try {
-    const response = await fetch(`/api/expenses/${id}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete expense');
-    }
-    expenses.value = expenses.value.filter(expense => expense.id !== id);
-    entries.value = entries.value.filter(entry => entry.id !== id);
-  } catch (error) {
-    console.error('Error deleting expense:', error);
   }
 }
 </script>
@@ -227,10 +241,17 @@ async function deleteExpense(id: number) {
   text-align: center;
 }
 
-.table-container {
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+}
+
+.chart {
+  width: 100%;
+  height: 300px;
+  margin-top: 20px;
 }
 
 :deep(.expense-table) {
@@ -262,41 +283,17 @@ async function deleteExpense(id: number) {
 }
 
 /* Define specific widths for each column */
-:deep(th:nth-child(1)),
-:deep(td:nth-child(1)) {
-  width: 100px; /* Date column */
-}
-
-:deep(th:nth-child(2)),
-:deep(td:nth-child(2)) {
-  width: 150px; /* Category column */
-}
-
-:deep(th:nth-child(3)),
-:deep(td:nth-child(3)) {
-  width: 300px; /* Description column */
-}
-
-:deep(th:nth-child(4)),
-:deep(td:nth-child(4)) {
-  width: 100px; /* Amount column */
-}
-
-:deep(th:nth-child(5)),
-:deep(td:nth-child(5)) {
-  width: 100px; /* Actions column */
-}
+:deep(th:nth-child(1)), :deep(td:nth-child(1)) { width: 100px; }
+:deep(th:nth-child(2)), :deep(td:nth-child(2)) { width: 150px; }
+:deep(th:nth-child(3)), :deep(td:nth-child(3)) { width: 300px; }
+:deep(th:nth-child(4)), :deep(td:nth-child(4)) { width: 100px; }
+:deep(th:nth-child(5)), :deep(td:nth-child(5)) { width: 100px; }
 
 .pagination {
   display: flex;
   justify-content: center;
   margin-top: 20px;
   flex-wrap: wrap;
-}
-
-.modal-title {
-  font-size: 18px;
-  font-weight: semibold;
 }
 
 .edit-modal {
@@ -317,35 +314,37 @@ async function deleteExpense(id: number) {
   --color-background-hover: #2d3748;
 }
 
+.mobile-tabs {
+  display: none;
+}
+
 @media (max-width: 1024px) {
-  .expense-list-container {
-    padding: 10px;
-  }
+  .expense-list-container { padding: 10px; }
 }
 
 @media (max-width: 768px) {
-  .expense-list-container {
-    padding: 5px;
+  .mobile-tabs {
+    display: block;
+    margin-bottom: 20px;
   }
 
-  :deep(th),
-  :deep(td) {
-    padding: 6px;
+  .charts-container { flex-direction: column; }
+  .chart { height: 250px; margin-bottom: 30px; }
+  .expense-list-container { padding: 5px; }
+  :deep(th), :deep(td) { padding: 6px; }
+  :deep(.chartjs-render-monitor) {
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 
 @media (max-width: 640px) {
-  .expense-list-container {
-    padding: 2px;
-  }
+  .expense-list-container { padding: 2px; }
+  .edit-modal { max-width: 98vw; }
+  :deep(th), :deep(td) { padding: 4px; }
+}
 
-  .edit-modal {
-    max-width: 98vw;
-  }
-
-  :deep(th),
-  :deep(td) {
-    padding: 4px;
-  }
+@media (max-width: 480px) {
+  .chart { height: 200px; }
 }
 </style>
