@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
@@ -18,9 +19,25 @@ const props = defineProps({
   }
 });
 
+const totalExpenses = computed(() => 
+  props.chartData.datasets[0].data.reduce((acc, curr) => acc + curr, 0)
+);
+
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          const label = context.label || '';
+          const value = context.raw || 0;
+          const percentage = ((value / totalExpenses.value) * 100).toFixed(2);
+          return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+        }
+      }
+    }
+  }
 };
 </script>
 

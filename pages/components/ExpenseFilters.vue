@@ -1,25 +1,23 @@
 <template>
   <div class="filters">
-    <UFormGroup>
-      <USelectMenu v-model="localSelectedPeriod" :options="periodOptions" placeholder="Select time period" />
-      <USelectMenu v-model="localSelectedCategory" :options="categoryOptions" placeholder="Select category" />
-    </UFormGroup>
+    <USelectMenu v-model="localSelectedPeriod" :options="periodOptions" placeholder="Select time period" />
+    <USelectMenu v-model="localSelectedCategory" :options="categoryOptions" placeholder="Select category" />
     <div class="filter-actions">
-      <UButton @click="$emit('apply-filters')">Apply Filters</UButton>
-      <UButton @click="$emit('reset-filters')" variant="outline">Reset Filters</UButton>
+      <UButton class="filter-reset" @click="$emit('reset-filters')" variant="outline">Reset Filters</UButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
-  selectedPeriod: String,
-  selectedCategory: String,
+  selectedPeriod: Object,
+  selectedCategory: Object,
+  categoryOptions: Array,
 });
 
-const emit = defineEmits(['update:selectedPeriod', 'update:selectedCategory', 'apply-filters', 'reset-filters']);
+const emit = defineEmits(['update:selectedPeriod', 'update:selectedCategory', 'reset-filters']);
 
 const localSelectedPeriod = computed({
   get: () => props.selectedPeriod,
@@ -32,33 +30,12 @@ const localSelectedCategory = computed({
 });
 
 const periodOptions = [
+  { label: 'All Time', value: '' },
   { label: 'This Week', value: 'week' },
   { label: 'This Month', value: 'month' },
   { label: 'This Year', value: 'year' },
 ];
 
-const categoryOptions = ref<string[]>([]);
-
-onMounted(async () => {
-  await fetchCategories();
-});
-
-async function fetchCategories() {
-  try {
-    const response = await fetch('/api/categories');
-    if (response.ok) {
-      const json = await response.json();
-      categoryOptions.value = json.map((category: { id: number, name: string }) => ({
-        label: category.name,
-        value: category.name
-      }));
-    } else {
-      console.error('Failed to fetch categories');
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
-}
 </script>
 
 <style scoped>
@@ -73,6 +50,10 @@ async function fetchCategories() {
   display: flex;
   gap: 10px;
   align-items: flex-end;
+}
+
+.filter-reset {
+  color: var(--color-danger);
 }
 
 :deep(.form-group) {

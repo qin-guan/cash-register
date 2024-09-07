@@ -3,10 +3,11 @@
     <h3 class="page-title">Past Records</h3>
 
     <ExpenseFilters
-      v-model:selectedPeriod="selectedPeriod"
-      v-model:selectedCategory="selectedCategory"
+      :selectedPeriod="selectedPeriod"
+      :selectedCategory="selectedCategory"
       :categoryOptions="categoryOptions"
-      @apply-filters="applyFilters"
+      @update:selectedPeriod="selectedPeriod = $event"
+      @update:selectedCategory="selectedCategory = $event"
       @reset-filters="resetFilters"
     />
 
@@ -74,8 +75,8 @@ const isEditModalOpen = ref(false);
 const editForm = ref({});
 const currentPage = ref(1);
 const itemsPerPage = 10;
-const selectedPeriod = ref('');
-const selectedCategory = ref('');
+const selectedPeriod = ref({ label: 'All Time', value: '' });
+const selectedCategory = ref({ label: 'All Categories', value: '' });
 const activeTab = ref('table');
 const isMobile = ref(false);
 const activeChartTab = ref('income-expense');
@@ -108,26 +109,26 @@ const categoryOptions = computed(() => [
 const filteredEntries = computed(() => {
   let filtered = [...entries.value];
 
-  if (selectedPeriod.value) {
+  if (selectedPeriod.value.value) {
     const now = new Date();
-    const startDate = new Date();
-    
-    if (selectedPeriod.value === 'week') {
+    let startDate = new Date(now);
+
+    if (selectedPeriod.value.value === 'week') {
       startDate.setDate(now.getDate() - 7);
-    } else if (selectedPeriod.value === 'month') {
+    } else if (selectedPeriod.value.value === 'month') {
       startDate.setMonth(now.getMonth() - 1);
-    } else if (selectedPeriod.value === 'year') {
+    } else if (selectedPeriod.value.value === 'year') {
       startDate.setFullYear(now.getFullYear() - 1);
     }
 
     filtered = filtered.filter(entry => new Date(entry.date) >= startDate);
   }
 
-  if (selectedCategory.value) {
-    filtered = filtered.filter(entry => entry.category === selectedCategory.value);
+  if (selectedCategory.value.value) {
+    filtered = filtered.filter(entry => entry.category === selectedCategory.value.value);
   }
 
-  return filtered.reverse();
+  return filtered;
 });
 
 const paginatedEntries = computed(() => {
@@ -197,12 +198,12 @@ function onChartTabChange(index: number) {
 }
 
 function applyFilters() {
-  currentPage.value = 1;
+  currentPage.value = 1; // Goes back to first page if the filters changed
 }
 
 function resetFilters() {
-  selectedPeriod.value = '';
-  selectedCategory.value = '';
+  selectedPeriod.value = { label: 'All Time', value: '' };
+  selectedCategory.value = { label: 'All Categories', value: '' };
   currentPage.value = 1;
 }
 
