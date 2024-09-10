@@ -18,7 +18,7 @@ const newExpense = ref<Expense>({
   credit: 0,
   debit: 0,
   description: '',
-  date: '',
+  date: new Date().toISOString().split('T')[0],
   category: '',
 });
 
@@ -48,7 +48,7 @@ async function addExpense(expense: Expense) {
       credit: 0,
       debit: 0,
       description: '',
-      date: '',
+      date: new Date().toISOString().split('T')[0],
       category: ''
     };
 

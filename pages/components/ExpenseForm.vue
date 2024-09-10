@@ -38,7 +38,10 @@ const emits = defineEmits<{
   (event: 'cancel'): void;
 }>();
 
-const expenseData = ref<Expense>({ ...props.expense });
+const expenseData = ref<Expense>({
+  ...props.expense,
+  date: props.expense.date || new Date().toISOString().split('T')[0]
+});
 
 const categories = ref<string[]>(props.categories);
 
