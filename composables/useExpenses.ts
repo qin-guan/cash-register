@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { defaultExpense } from './defaultExpense';
 
 export function useExpenses() {
   const expenses = ref([]);
@@ -57,10 +58,8 @@ export function useExpenses() {
       expenses.value.splice(index, 1, refreshedExpense);
 
       const updatedEntry = {
-        id: refreshedExpense.id,
-        date: refreshedExpense.date,
-        category: refreshedExpense.category,
-        description: refreshedExpense.description,
+        ...defaultExpense,
+        ...refreshedExpense,
         amount: (refreshedExpense.credit - refreshedExpense.debit).toFixed(2),
       };
       const entryIndex = entries.value.findIndex(e => e.id === refreshedExpense.id);

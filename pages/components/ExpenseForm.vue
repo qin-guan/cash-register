@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, onMounted } from 'vue';
+import { defaultExpense } from '../../composables/defaultExpense';
 
 const props = defineProps<{
   expense: Expense;
@@ -39,8 +40,8 @@ const emits = defineEmits<{
 }>();
 
 const expenseData = ref<Expense>({
-  ...props.expense,
-  date: props.expense.date || new Date().toISOString().split('T')[0]
+  ...defaultExpense,
+  ...props.expense
 });
 
 const categories = ref<string[]>(props.categories);
@@ -67,7 +68,7 @@ function handleSubmit() {
   if (validateExpense(expenseData.value)) {
     emits('submit', expenseData.value);
   }
-  expenseData.value = { date: '', category: '', description: '', credit: 0, debit: 0 }; // Reset UForm
+  expenseData.value = { ...defaultExpense }; // Reset form
 }
 
 function validateExpense(expense: Expense): boolean {
@@ -85,7 +86,7 @@ function validateExpense(expense: Expense): boolean {
 }
 
 function cancelEdit() {
-  expenseData.value = { date: '', category: '', description: '', credit: 0, debit: 0 }; // Reset UForm
+  expenseData.value = { ...defaultExpense }; // Reset form
   emits('cancel');
 }
 </script>

@@ -13,14 +13,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import ExpenseForm from './components/ExpenseForm.vue';
+import { defaultExpense } from '../composables/defaultExpense';
 
-const newExpense = ref<Expense>({
-  credit: 0,
-  debit: 0,
-  description: '',
-  date: new Date().toISOString().split('T')[0],
-  category: '',
-});
+const newExpense = ref<Expense>({ ...defaultExpense });
 
 const categories = ref<string[]>([]);
 
@@ -44,13 +39,7 @@ async function addExpense(expense: Expense) {
     }
 
     // Clear the form after successful submission
-    newExpense.value = {
-      credit: 0,
-      debit: 0,
-      description: '',
-      date: new Date().toISOString().split('T')[0],
-      category: ''
-    };
+    newExpense.value = { ...defaultExpense };
 
     // Show success message
     alert('Expense added successfully!');
