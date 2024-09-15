@@ -1,6 +1,7 @@
+// login.ts
 import { defineEventHandler, readBody, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import { initializeDatabase, User, secretKey } from '../users-db';
+import { initializeDatabase, User, secretKey, adminUsername, adminPassword } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -9,26 +10,28 @@ export default defineEventHandler(async (event) => {
 
     let user: User | undefined;
 
-    const existingUser = await db.get(`SELECT * FROM users WHERE username = ?`, username) as User;
-    
-    if (existingUser) {
-      user = existingUser;
-      if (user.password !== password) {
-        throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
-      }
-      if (!user.is_admin && !user.is_approved) {
-        throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
-      }
+    // Check if it's the admin user from environment variables
+    if (username === adminUsername && password === adminPassword) {
+      user = {
+        id: 0,
+        username: adminUsername,
+        password: adminPassword,
+        is_admin: true,
+        is_approved: true
+      };
     } else {
-      const users = await db.all('SELECT * FROM users');
-      const isFirstUser = users.length === 0;
-      const isApproved = isFirstUser;
-    
-      const result = await db.run(`INSERT INTO users (username, password, is_admin, is_approved) VALUES (?, ?, ?, ?)`, username, password, isFirstUser, isApproved);
+      const existingUser = await db.get(`SELECT * FROM users WHERE username = ?`, username) as User;
       
-      user = await db.get(`SELECT * FROM users WHERE id = ?`, result.lastID) as User;
-      if (!isApproved) {
-        throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
+      if (existingUser) {
+        user = existingUser;
+        if (user.password !== password) {
+          throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
+        }
+        if (!user.is_admin && !user.is_approved) {
+          throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
+        }
+      } else {
+        throw createError({ statusCode: 401, statusMessage: 'User not found' });
       }
     }
 
