@@ -3,7 +3,7 @@ import { existsSync } from 'fs';
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 
-const databasePath = 'data/users.db';
+const databasePath = path.join(process.cwd(), 'data', 'users.sqlite');
 export const secretKey = process.env.AUTH_SECRET;
 
 let db: Database;

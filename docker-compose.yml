@@ -2,8 +2,8 @@ services:
   cash-register:
     build: .
     restart: always
-    ports:
-      - "14321:3000"
     volumes:
       - /Users/julianteh/OneDrive/Chillian/Cash-Register/data:/app/data
     env_file: /Users/julianteh/OneDrive/Chillian/Cash-Register/data/cash-register.env
+    labels:
+      - "traefik.http.routers.cash-register.rule=Host(`expenses.tehj.io`)"
