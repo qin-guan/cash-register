@@ -1,16 +1,20 @@
-// categories-db.ts
-import { existsSync } from 'fs';
-import { Database } from 'duckdb-async';
+// /Users/julianteh/julwrites/cash-register/server/api/categories/categories-db.ts
 
-const databasePath = 'data/categories.db';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
 
-const db = await Database.create(databasePath);
-await db.connect();
+const databasePath = path.join(process.cwd(), 'data', 'categories.sqlite');
 
-await db.run(`
+const db = await open({
+  filename: databasePath,
+  driver: sqlite3.Database
+});
+
+await db.exec(`
   CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
   );
 `);
 

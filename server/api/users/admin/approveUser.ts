@@ -2,7 +2,7 @@
 
 import { defineEventHandler, readBody, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import db from '../users-db';
+import { initializeDatabase } from '../users-db';
 
 const secretKey = process.env.AUTH_SECRET;
 
@@ -20,10 +20,12 @@ export default defineEventHandler(async (event) => {
     }
 
     const { userId } = await readBody(event);
+    const db = await initializeDatabase();
+    
     await db.run('UPDATE users SET is_approved = ? WHERE id = ?', true, userId);
 
-    const updatedUser = await db.all('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
-    return updatedUser[0];
+    const updatedUser = await db.get('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
+    return updatedUser;
   } catch (error) {
     console.error('Approve User API error:', error);
     throw createError({ statusCode: 500, statusMessage: 'Internal Server Error' });

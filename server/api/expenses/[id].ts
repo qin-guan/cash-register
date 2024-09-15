@@ -1,3 +1,5 @@
+// /Users/julianteh/julwrites/cash-register/server/api/expenses/[id].ts
+
 import { defineEventHandler, readBody, createError } from 'h3';
 import db, { Expense } from './expenses-db';
 
@@ -7,29 +9,26 @@ export default defineEventHandler(async (event) => {
 
   // GET: Fetch a single expense
   if (method === 'GET') {
-    const expense = await db.all("SELECT * FROM expenses WHERE id = ?", id) as Expense[];
-    if (expense.length === 0) {
+    const expense = await db.get("SELECT * FROM expenses WHERE id = ?", id) as Expense;
+    if (!expense) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Expense not found',
       });
     }
-    return expense[0];
+    return expense;
   }
 
   // PUT: Update an expense
   if (method === 'PUT') {
     const updatedExpense: Expense = await readBody(event);
-    await db.run(`
+    const result = await db.run(`
       UPDATE expenses
       SET credit = ?, debit = ?, description = ?, date = ?, category = ?
       WHERE id = ?
     `, updatedExpense.credit || 0, updatedExpense.debit || 0, updatedExpense.description, updatedExpense.date, updatedExpense.category, id);
     
-    // Check if the expense exists after the update
-    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
-
-    if (updatedResult.length === 0) {
+    if (result.changes === 0) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Expense not found',
@@ -41,15 +40,12 @@ export default defineEventHandler(async (event) => {
 
   // DELETE: Delete an expense
   if (method === 'DELETE') {
-    await db.run("DELETE FROM expenses WHERE id = ?", id);
+    const result = await db.run("DELETE FROM expenses WHERE id = ?", id);
 
-    // Check if the expense exists after the delete
-    const updatedResult = await db.all("SELECT * FROM expenses WHERE id = ?", id);
-    
-    if (updatedResult.length > 0) {
+    if (result.changes === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Expense was not deleted correctly',
+        statusMessage: 'Expense not found',
       });
     }
 

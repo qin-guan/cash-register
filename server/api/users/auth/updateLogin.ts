@@ -1,7 +1,6 @@
 import { defineEventHandler, readBody, createError } from 'h3';
-import { Statement } from 'duckdb-async'
 import jwt from 'jsonwebtoken';
-import db, { User, secretKey } from '../users-db';
+import { initializeDatabase, User, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,34 +17,33 @@ export default defineEventHandler(async (event) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, secretKey) as { userId: number };
 
+    const db = await initializeDatabase();
+
     // Check if user exists
-    const users = await db.all('SELECT * FROM users WHERE id = ?', decoded.userId) as User[];
+    const user = await db.get('SELECT * FROM users WHERE id = ?', decoded.userId) as User;
     
-    if (users.length === 0) {
-      await db.close();
+    if (!user) {
       throw createError({
         statusCode: 404,
         statusMessage: 'User not found'
       });
     }
 
-    var result: Statement;
-    if (newUsername === users[0].username) {
+    let result;
+    if (newUsername === user.username) {
       result = await db.run(`
         UPDATE users
         SET password = COALESCE(?, password)
-        WHERE id = ?;
-      `, newPassword || null, decoded.userId);
+        WHERE id = ?
+      `, newPassword || user.password, decoded.userId);
     } else {
       result = await db.run(`
         UPDATE users
         SET username = COALESCE(?, username),
             password = COALESCE(?, password)
-        WHERE id = ?;
-      `, newUsername || null, newPassword || null, decoded.userId);
+        WHERE id = ?
+      `, newUsername || user.username, newPassword || user.password, decoded.userId);
     }
-
-    await db.close();
 
     if (result.changes === 0) {
       throw createError({

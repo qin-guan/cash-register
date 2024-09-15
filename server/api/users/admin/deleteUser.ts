@@ -2,10 +2,9 @@
 
 import { defineEventHandler, readBody, createError } from 'h3'
 import jwt from 'jsonwebtoken'
-import db, { User, secretKey } from '../users-db'
+import { initializeDatabase, secretKey } from '../users-db'
 
 export default defineEventHandler(async (event) => {
-  // Verify that the user is an admin
   const token = event.req.headers.authorization?.split(' ')[1]
   if (!token) {
     throw createError({
@@ -23,8 +22,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Remove user
-    const { userId } = JSON.parse(await readBody(event))
+    const { userId } = await readBody(event)
+    const db = await initializeDatabase();
+    
     await db.run('DELETE FROM users WHERE id = ?', userId)
     return { success: true }
   } catch (error) {

@@ -1,7 +1,7 @@
 // server/api/admin/getUsers.ts
 import { defineEventHandler, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import db, { User } from '../users-db';
+import { initializeDatabase, User } from '../users-db';
 
 const secretKey = process.env.AUTH_SECRET;
 
@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
     }
 
+    const db = await initializeDatabase();
     const users = await db.all('SELECT id, username, is_admin, is_approved FROM users') as User[];
     return users;
   } catch (error) {

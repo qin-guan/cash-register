@@ -1,3 +1,5 @@
+// /Users/julianteh/julwrites/cash-register/server/api/expenses/add.ts
+
 import { defineEventHandler, readBody, createError } from "h3";
 import db, { Expense } from "./expenses-db";
 
@@ -15,16 +17,12 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Get the next ID by finding the maximum ID and adding 1
-    const maxIdResult = await db.all("SELECT COALESCE(MAX(id), 0) as max_id FROM expenses");
-    const nextId = maxIdResult[0].max_id + 1;
-
     const result = await db.run(`
-      INSERT INTO expenses (id, credit, debit, description, date, category)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `, nextId, expense.credit || 0, expense.debit || 0, expense.description, expense.date, expense.category);
+      INSERT INTO expenses (credit, debit, description, date, category)
+      VALUES (?, ?, ?, ?, ?)
+    `, expense.credit || 0, expense.debit || 0, expense.description, expense.date, expense.category);
 
-    return { id: nextId, ...expense };
+    return { id: result.lastID, ...expense };
   } catch (err: unknown) {
     console.error("Error inserting expense:", err);
     return createError({

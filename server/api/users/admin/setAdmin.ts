@@ -2,7 +2,7 @@
 
 import { defineEventHandler, readBody, createError } from 'h3';
 import jwt from 'jsonwebtoken';
-import db, { User, secretKey } from '../users-db';
+import { initializeDatabase, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   const token = event.req.headers.authorization?.split(' ')[1];
@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const { userId, is_admin } = await readBody(event);
+    const db = await initializeDatabase();
 
     await db.run(
       'UPDATE users SET is_admin = ? WHERE id = ?',
@@ -25,8 +26,8 @@ export default defineEventHandler(async (event) => {
       userId
     );
 
-    const updatedUser = await db.all('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
-    return updatedUser[0];
+    const updatedUser = await db.get('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
+    return updatedUser;
   } catch (error) {
     console.error('Update User API error:', error);
     throw createError({

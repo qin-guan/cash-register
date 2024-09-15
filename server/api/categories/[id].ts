@@ -1,3 +1,5 @@
+// /Users/julianteh/julwrites/cash-register/server/api/categories/[id].ts
+
 import { defineEventHandler, createError, readBody } from 'h3';
 import db from './categories-db'
 
@@ -6,14 +8,12 @@ export default defineEventHandler(async (event) => {
   const id = event.context.params?.id;
 
   if (method === 'DELETE') {
-    await db.run("DELETE FROM categories WHERE id = ?", id);
+    const result = await db.run("DELETE FROM categories WHERE id = ?", id);
 
-    const [category] = await db.all("SELECT * FROM categories WHERE id = ?", id);
-
-    if (category) {
+    if (result.changes === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Category was not deleted',
+        statusMessage: 'Category not found',
       });
     }
 
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const [category] = await db.all("SELECT * FROM categories WHERE id = ?", id);
+    const category = await db.get("SELECT * FROM categories WHERE id = ?", id);
 
     if (!category) {
       throw createError({
@@ -44,13 +44,20 @@ export default defineEventHandler(async (event) => {
       return category;
     }
 
-    await db.run(`
+    const result = await db.run(`
       UPDATE categories 
       SET name = ?
       WHERE id = ?
     `, updateData.name, id);
 
-    const [updatedCategory] = await db.all("SELECT * FROM categories WHERE id = ?", id);
+    if (result.changes === 0) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to update category',
+      });
+    }
+
+    const updatedCategory = await db.get("SELECT * FROM categories WHERE id = ?", id);
 
     return updatedCategory;
   }

@@ -1,3 +1,5 @@
+// /Users/julianteh/julwrites/cash-register/server/api/expenses/index.ts
+
 import { defineEventHandler, createError } from 'h3';
 import db, { Expense } from './expenses-db';
 
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
 export async function fetchExpenses(): Promise<Expense[]> {
   const result = await db.all(`
     SELECT id, credit, debit, description,
-      STRFTIME('%Y-%m-%d', date) as date,
+      strftime('%Y-%m-%d', date) as date,
       category
     FROM expenses;
   `);

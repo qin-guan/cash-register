@@ -20,11 +20,9 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Category name is required',
       });
     }
-    const maxIdResult = await db.all("SELECT COALESCE(MAX(id), 0) as max_id FROM categories");
-    const nextId = maxIdResult[0].max_id + 1;
 
-    const result = await db.run("INSERT INTO categories (id, name) VALUES (?, ?)", nextId, newCategory.name);
-    const [addedCategory] = await db.all("SELECT * FROM categories WHERE id = ?", nextId);
+    const result = await db.run("INSERT INTO categories (name) VALUES (?)", newCategory.name);
+    const addedCategory = await db.get("SELECT * FROM categories WHERE id = ?", result.lastID);
 
     return addedCategory;
   }

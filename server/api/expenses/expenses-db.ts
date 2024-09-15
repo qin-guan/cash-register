@@ -1,23 +1,24 @@
-import { existsSync } from 'fs';
-import { Database } from 'duckdb-async';
+// /Users/julianteh/julwrites/cash-register/server/api/expenses/expenses-db.ts
 
-const databasePath = 'data/expenses.db';
-const db = await Database.create(databasePath);
-await db.connect();
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
 
-if (!existsSync(databasePath)) {
-  console.log("No existing Expenses Table found. Starting with empty table.");
-}
+const databasePath = path.join(process.cwd(), 'data', 'expenses.sqlite');
 
-// Create table if not exists
+const db = await open({
+  filename: databasePath,
+  driver: sqlite3.Database
+});
+
 await db.exec(`
   CREATE TABLE IF NOT EXISTS expenses (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     credit DECIMAL(10, 2) DEFAULT 0,
     debit DECIMAL(10, 2) DEFAULT 0,
-    description VARCHAR(255),
+    description TEXT,
     date DATE,
-    category VARCHAR(50)
+    category TEXT
   );
 `);
 
