@@ -8,7 +8,7 @@
           Set Up Admin Account
         </UButton>
       </div>
-      <form v-else @submit.prevent="login" class="login-form">
+      <form v-else @submit.prevent="checkUser" class="login-form">
         <div class="form-group">
           <label for="username" class="form-label">Username:</label>
           <UInput
@@ -19,7 +19,7 @@
             required
           />
         </div>
-        <div class="form-group">
+        <div v-if="showPasswordField" class="form-group">
           <label for="password" class="form-label">Password:</label>
           <UInput
             type="password"
@@ -35,7 +35,7 @@
           block
           class="btn btn-primary login-button"
         >
-          Login
+          {{ showPasswordField ? 'Login' : 'Continue' }}
         </UButton>
       </form>
     </UCard>
@@ -64,6 +64,7 @@ const showSetPasswordModal = ref(false);
 const userId = ref('');
 const isFirstUser = ref(false);
 const showSetupModal = ref(false);
+const showPasswordField = ref(false);
 
 onMounted(async () => {
   await checkFirstUser();
@@ -83,6 +84,31 @@ async function checkFirstUser() {
   }
 }
 
+async function checkUser() {
+  if (!showPasswordField.value) {
+    try {
+      const response = await $fetch('/api/users/auth/login', {
+        method: 'POST',
+        body: { username: username.value },
+      });
+
+      if (!response.userExists) {
+        showSetPasswordModal.value = true;
+      } else if (response.needsPasswordReset) {
+        userId.value = response.userId;
+        showSetPasswordModal.value = true;
+      } else {
+        showPasswordField.value = true;
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+      alert('An error occurred. Please try again.');
+    }
+  } else {
+    await login();
+  }
+}
+
 async function login() {
   try {
     const response = await $fetch('/api/users/auth/login', {
@@ -90,10 +116,7 @@ async function login() {
       body: { username: username.value, password: password.value },
     });
 
-    if (response.needsPasswordReset) {
-      userId.value = response.userId;
-      showSetPasswordModal.value = true;
-    } else if (response.token) {
+    if (response.token) {
       setItem('authToken', response.token);
       router.push('/');
     } else {
@@ -112,6 +135,7 @@ async function login() {
 
 function onPasswordSet() {
   showSetPasswordModal.value = false;
+  showPasswordField.value = true;
   alert('Password set successfully. Please log in with your new password.');
 }
 

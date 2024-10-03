@@ -1,7 +1,6 @@
 // server/api/users/auth/setPassword.ts
 import { defineEventHandler, createError, readBody } from 'h3';
 import { initializeDatabase, User } from '../users-db';
-import bcrypt from 'bcrypt';
 
 export default defineEventHandler(async (event) => {
   const { userId, password } = await readBody(event);
@@ -21,11 +20,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Password reset not required for this user' });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
+  // Store the password as plain text instead of hashing
   await db.run(
     'UPDATE users SET password = ?, needs_password_reset = 0 WHERE id = ?',
-    [hashedPassword, userId]
+    [password, userId]
   );
 
   return { success: true };

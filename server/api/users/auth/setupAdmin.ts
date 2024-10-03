@@ -1,30 +1,38 @@
-// server/api/users/auth/setupAdmin.ts
-import { defineEventHandler, createError, readBody } from 'h3';
-import { initializeDatabase, User } from '../users-db';
-import bcrypt from 'bcrypt';
+// server/api/admin/setAdmin.ts
+
+import { defineEventHandler, readBody, createError } from 'h3';
+import jwt from 'jsonwebtoken';
+import { initializeDatabase, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
-  const { username, password } = await readBody(event);
+  const token = event.req.headers.authorization?.split(' ')[1];
 
-  if (!username || !password) {
-    throw createError({ statusCode: 400, statusMessage: 'Username and password are required' });
+  if (!token) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
   }
 
-  const db = await initializeDatabase();
+  try {
+    const decoded = jwt.verify(token, secretKey) as any;
+    if (!decoded.isAdmin) {
+      throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
+    }
 
-  // Check if there are any users in the database
-  const userCount = await db.get('SELECT COUNT(*) as count FROM users');
-  
-  if (userCount.count > 0) {
-    throw createError({ statusCode: 403, statusMessage: 'Admin account already exists' });
+    const { userId, is_admin } = await readBody(event);
+    const db = await initializeDatabase();
+
+    await db.run(
+      'UPDATE users SET is_admin = ? WHERE id = ?',
+      is_admin,
+      userId
+    );
+
+    const updatedUser = await db.get('SELECT id, username, is_admin, is_approved FROM users WHERE id = ?', userId);
+    return updatedUser;
+  } catch (error) {
+    console.error('Update User API error:', error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+    });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  await db.run(
-    'INSERT INTO users (username, password, is_admin, is_approved, needs_password_reset) VALUES (?, ?, 1, 1, 0)',
-    [username, hashedPassword]
-  );
-
-  return { success: true };
 });

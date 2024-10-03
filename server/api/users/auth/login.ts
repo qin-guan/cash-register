@@ -1,8 +1,8 @@
 // server/api/users/auth/login.ts
+
 import { defineEventHandler, createError, readBody } from 'h3';
 import jwt from 'jsonwebtoken';
 import { initializeDatabase, User } from '../users-db';
-import bcrypt from 'bcrypt';
 
 const secretKey = process.env.AUTH_SECRET;
 
@@ -13,23 +13,22 @@ export default defineEventHandler(async (event) => {
   const user = await db.get('SELECT * FROM users WHERE username = ?', [username]) as User;
 
   if (!user) {
-    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
+    return { userExists: false };
   }
 
   if (!user.is_approved) {
     throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
   }
 
-  if (user.needs_password_reset) {
+  if (user.needs_password_reset || !user.password) {
     return {
+      userExists: true,
       needsPasswordReset: true,
       userId: user.id,
     };
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
+  if (password && user.password !== password) {
     throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
   }
 
@@ -39,5 +38,9 @@ export default defineEventHandler(async (event) => {
     isAdmin: user.is_admin 
   }, secretKey, { expiresIn: '1h' });
 
-  return { token, user: { id: user.id, username: user.username, isAdmin: user.is_admin } };
+  return { 
+    userExists: true,
+    token, 
+    user: { id: user.id, username: user.username, isAdmin: user.is_admin } 
+  };
 });
