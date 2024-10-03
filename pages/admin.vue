@@ -23,18 +23,18 @@
     </div>
 
     <UModal v-model="isCreateUserModalOpen">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-bold">Create New User</h3>
-        </template>
-        <form @submit.prevent="createUser">
-          <UFormGroup label="Email">
-            <UInput v-model="newUserEmail" type="email" required />
-          </UFormGroup>
-          <UButton type="submit" color="primary" class="mt-4">Create User</UButton>
-        </form>
-      </UCard>
-    </UModal>
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-bold">Create New User</h3>
+      </template>
+      <form @submit.prevent="createUser">
+        <UFormGroup label="Username">
+          <UInput v-model="newUsername" type="text" required />
+        </UFormGroup>
+        <UButton type="submit" color="primary" class="mt-4">Create User</UButton>
+      </form>
+    </UCard>
+  </UModal>
   </div>
 </template>
 
@@ -58,7 +58,7 @@ const columns = [
 ]
 
 const isCreateUserModalOpen = ref(false);
-const newUserEmail = ref('');
+const newUsername = ref('');
 
 onMounted(async () => {
   try {
@@ -146,7 +146,7 @@ async function createUser() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ email: newUserEmail.value }),
+      body: JSON.stringify({ username: newUsername.value }),
     });
 
     if (!response.ok) {
@@ -163,7 +163,7 @@ async function createUser() {
     });
 
     isCreateUserModalOpen.value = false;
-    newUserEmail.value = '';
+    newUsername.value = '';
   } catch (err) {
     error.value = err.message;
   }

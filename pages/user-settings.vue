@@ -2,7 +2,7 @@
   <div class="settings-container">
     <h2 class="page-title">User Settings</h2>
 
-    <UForm @submit.prevent="updateSettings" class="settings-form">
+    <UForm @submit.prevent="updateLogin" class="settings-form">
       <UFormGroup label="New Username" name="username">
         <UInput type="text" id="username" v-model="newUsername" required />
       </UFormGroup>
@@ -22,10 +22,10 @@ const newPassword = ref('');
 const message = ref('');
 const { getItem } = useLocalStorage();
 
-function updateSettings() {
+function updateLogin() {
   const token = getItem('authToken');
 
-  fetch('/api/users/auth/updateSettings', {
+  fetch('/api/users/auth/updateLogin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

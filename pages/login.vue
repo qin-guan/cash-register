@@ -41,7 +41,7 @@
     </UCard>
 
     <UModal v-model="showSetPasswordModal">
-      <SetPassword :userId="userId" @passwordSet="onPasswordSet" />
+      <SetPassword :username="username" @passwordSet="onPasswordSet" />
     </UModal>
 
     <UModal v-model="showSetupModal">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SetPassword from './components/SetPassword.vue';
 import SetupAdminAccount from './components/SetupAdminAccount.vue';
@@ -61,7 +61,6 @@ const password = ref('');
 const router = useRouter();
 const { setItem } = useLocalStorage();
 const showSetPasswordModal = ref(false);
-const userId = ref('');
 const isFirstUser = ref(false);
 const showSetupModal = ref(false);
 const showPasswordField = ref(false);
@@ -92,10 +91,7 @@ async function checkUser() {
         body: { username: username.value },
       });
 
-      if (!response.userExists) {
-        showSetPasswordModal.value = true;
-      } else if (response.needsPasswordReset) {
-        userId.value = response.userId;
+      if (response.userExists && response.needsPasswordReset) {
         showSetPasswordModal.value = true;
       } else {
         showPasswordField.value = true;

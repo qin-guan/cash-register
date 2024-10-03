@@ -35,16 +35,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
-  userId: string;
+  username: string;
 }>();
 
 const emit = defineEmits(['passwordSet']);
 
 const password = ref('');
 const confirmPassword = ref('');
+const currentUserId = ref('');
+
+watch(() => props.username, (newUsername) => {
+  console.log('Received new username in SetPassword:', newUsername);
+  currentUserId.value = newUsername;
+}, { immediate: true });
 
 async function setPassword() {
   if (password.value !== confirmPassword.value) {
@@ -53,9 +59,10 @@ async function setPassword() {
   }
 
   try {
+    console.log('Attempting to set password for username:', currentUserId.value);
     const response = await $fetch('/api/users/auth/setPassword', {
       method: 'POST',
-      body: { userId: props.userId, password: password.value },
+      body: { username: currentUserId.value, password: password.value },
     });
 
     if (response.success) {
