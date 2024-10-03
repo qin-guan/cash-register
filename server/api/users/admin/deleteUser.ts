@@ -23,9 +23,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const { userId } = await readBody(event)
+    console.log("Removing", userId);
     const db = await initializeDatabase();
     
-    await db.run('DELETE FROM users WHERE id = ?', userId)
+    await db.run('DELETE FROM users WHERE id = ?', [userId])
     return { success: true }
   } catch (error) {
     console.error('Delete User API error:', error)

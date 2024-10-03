@@ -1,9 +1,7 @@
 // server/api/users/admin/createUser.ts
 import { defineEventHandler, createError, readBody } from 'h3';
 import jwt from 'jsonwebtoken';
-import { initializeDatabase, User } from '../users-db';
-
-const secretKey = process.env.AUTH_SECRET;
+import { initializeDatabase, secretKey } from '../users-db';
 
 export default defineEventHandler(async (event) => {
   const token = event.req.headers.authorization?.split(' ')[1];
@@ -32,16 +30,14 @@ export default defineEventHandler(async (event) => {
 
     // Insert new user without a password
     const result = await db.run(
-      'INSERT INTO users (username, is_admin, is_approved, needs_password_reset) VALUES (?, ?, ?, ?)',
-      [username, 0, 1, 1]
+      'INSERT INTO users (username, password, is_admin, is_approved) VALUES (?, ?, ?, ?)', [username, '', false, false]
     );
 
     const newUser = {
       id: result.lastID,
       username: username,
       is_admin: false,
-      is_approved: true,
-      needs_password_reset: true,
+      is_approved: false,
     };
 
     // TODO: Send notification to the new user with instructions to set their password

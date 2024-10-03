@@ -28,8 +28,7 @@ export const initializeDatabase = async () => {
       username VARCHAR(50) UNIQUE,
       password VARCHAR(50),
       is_admin BOOLEAN DEFAULT FALSE,
-      is_approved BOOLEAN DEFAULT TRUE,
-      needs_password_reset BOOLEAN DEFAULT FALSE
+      is_approved BOOLEAN DEFAULT TRUE
     );
   `);
 
@@ -55,7 +54,6 @@ export interface User {
   password: string;
   is_admin: boolean;
   is_approved: boolean;
-  needs_password_reset: boolean;
 }
 
 export default initializeDatabase;

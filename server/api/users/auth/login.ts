@@ -16,11 +16,7 @@ export default defineEventHandler(async (event) => {
     return { userExists: false };
   }
 
-  if (!user.is_approved) {
-    throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
-  }
-
-  if (user.needs_password_reset || !user.password) {
+  if (!user.is_approved || !user.password) {
     return {
       userExists: true,
       needsPasswordReset: true,

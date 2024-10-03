@@ -78,7 +78,7 @@ onMounted(async () => {
         id: user.id,
         name: user.username,
         role: user.is_admin ? 'Admin' : 'User',
-        status: user.is_approved ? 'Approved' : 'Pending',
+        status: user.is_approved ? 'Activated' : 'Pending',
       };
     });
 
@@ -92,14 +92,14 @@ onMounted(async () => {
 function actions(row) {
   return [[
     {
-      label: row.status === 'Approved' && row.role === 'User' ? 'Promote' : 'Demote',
+      label: row.status === 'Activated' && row.role === 'User' ? 'Promote' : 'Demote',
       icon: row.role === 'User' ? 'i-heroicons-arrow-up-on-square-20-solid' : 'i-heroicons-arrow-down-on-square-20-solid',
       click: () => row.role === 'Admin' ? demoteUser(row.id) : promoteUser(row.id)
     },
     {
-      label: row.status === 'Approved' ? 'Remove' : 'Approve',
+      label: 'Remove',
       icon: 'i-heroicons-check-circle-20-solid',
-      click: () => row.status === 'Approved' ? removeUser(row.id) : approveUser(row.id)
+      click: () => removeUser(row.id)
     }
   ]]
 }
@@ -110,31 +110,6 @@ async function promoteUser(userId) {
 
 async function demoteUser(userId) {
   await updateAdmin(userId, { is_admin: false });
-}
-
-async function approveUser(userId) {
-  try {
-    const token = getItem('authToken');
-    const response = await fetch(`/api/users/admin/approveUser`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to update user');
-    }
-    const updatedUser = await response.json();
-    const index = users.value.findIndex(user => user.id === userId);
-    if (index !== -1) {
-      users.value[index] = updatedUser;
-    }
-  } catch (err) {
-    error.value = err.message;
-  }
 }
 
 async function createUser() {
@@ -159,7 +134,7 @@ async function createUser() {
       id: newUser.id,
       name: newUser.username,
       role: newUser.is_admin ? 'Admin' : 'User',
-      status: newUser.is_approved ? 'Approved' : 'Pending',
+      status: newUser.is_approved ? 'Activated' : 'Pending',
     });
 
     isCreateUserModalOpen.value = false;
@@ -176,14 +151,16 @@ async function removeUser(userId) {
       const response = await fetch(`/api/users/admin/deleteUser`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ userId: userId }),
       });
+
       if (!response.ok) {
         throw new Error('Failed to remove user');
       }
-      users.value = users.value.filter(user => user.id !== userId);
+      users.value = users.value.filter(user => user.Id !== userId);
     } catch (err) {
       error.value = err.message;
     }

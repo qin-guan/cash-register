@@ -16,14 +16,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'User not found' });
   }
 
-  if (!user.needs_password_reset) {
-    throw createError({ statusCode: 400, statusMessage: 'Password reset not required for this user' });
-  }
-
   // Store the password as plain text instead of hashing
   await db.run(
-    'UPDATE users SET password = ?, needs_password_reset = 0 WHERE username = ?',
-    [password, username]
+    'UPDATE users SET password = ?, is_approved = ? WHERE username = ?',
+    [password, 1, username]
   );
 
   return { success: true };
