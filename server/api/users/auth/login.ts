@@ -1,44 +1,43 @@
-// login.ts
-import { defineEventHandler, readBody, createError } from 'h3';
+// server/api/users/auth/login.ts
+import { defineEventHandler, createError, readBody } from 'h3';
 import jwt from 'jsonwebtoken';
-import { initializeDatabase, User, secretKey, adminUsername, adminPassword } from '../users-db';
+import { initializeDatabase, User } from '../users-db';
+import bcrypt from 'bcrypt';
+
+const secretKey = process.env.AUTH_SECRET;
 
 export default defineEventHandler(async (event) => {
-  try {
-    const { username, password } = await readBody(event);
-    const db = await initializeDatabase();
+  const { username, password } = await readBody(event);
 
-    let user: User | undefined;
+  const db = await initializeDatabase();
+  const user = await db.get('SELECT * FROM users WHERE username = ?', [username]) as User;
 
-    // Check if it's the admin user from environment variables
-    if (username === adminUsername && password === adminPassword) {
-      user = {
-        id: 0,
-        username: adminUsername,
-        password: adminPassword,
-        is_admin: true,
-        is_approved: true
-      };
-    } else {
-      const existingUser = await db.get(`SELECT * FROM users WHERE username = ?`, username) as User;
-      
-      if (existingUser) {
-        user = existingUser;
-        if (user.password !== password) {
-          throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
-        }
-        if (!user.is_admin && !user.is_approved) {
-          throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
-        }
-      } else {
-        throw createError({ statusCode: 401, statusMessage: 'User not found' });
-      }
-    }
-
-    const token = jwt.sign({ userId: user.id, username: user.username, isAdmin: user.is_admin }, secretKey, { expiresIn: '1h' });
-    return { token, isAdmin: user.is_admin };
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
+  if (!user) {
+    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
   }
+
+  if (!user.is_approved) {
+    throw createError({ statusCode: 403, statusMessage: 'Account not approved by admin' });
+  }
+
+  if (user.needs_password_reset) {
+    return {
+      needsPasswordReset: true,
+      userId: user.id,
+    };
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign({ 
+    userId: user.id, 
+    username: user.username, 
+    isAdmin: user.is_admin 
+  }, secretKey, { expiresIn: '1h' });
+
+  return { token, user: { id: user.id, username: user.username, isAdmin: user.is_admin } };
 });

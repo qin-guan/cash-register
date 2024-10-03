@@ -2,6 +2,12 @@
   <div class="admin-container">
     <h2 class="page-title">Admin Dashboard</h2>
 
+    <UButton
+      class="mb-4"
+      label="Create New User"
+      @click="isCreateUserModalOpen = true"
+    />
+
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else class="users-table">
@@ -15,6 +21,20 @@
         </UTable>
       </div>
     </div>
+
+    <UModal v-model="isCreateUserModalOpen">
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-bold">Create New User</h3>
+        </template>
+        <form @submit.prevent="createUser">
+          <UFormGroup label="Email">
+            <UInput v-model="newUserEmail" type="email" required />
+          </UFormGroup>
+          <UButton type="submit" color="primary" class="mt-4">Create User</UButton>
+        </form>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
@@ -36,6 +56,9 @@ const columns = [
   {key: 'status', label: 'Status'},
   {key: 'actions', label: 'Actions'},
 ]
+
+const isCreateUserModalOpen = ref(false);
+const newUserEmail = ref('');
 
 onMounted(async () => {
   try {
@@ -109,6 +132,38 @@ async function approveUser(userId) {
     if (index !== -1) {
       users.value[index] = updatedUser;
     }
+  } catch (err) {
+    error.value = err.message;
+  }
+}
+
+async function createUser() {
+  try {
+    const token = getItem('authToken');
+    const response = await fetch('/api/users/admin/createUser', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ email: newUserEmail.value }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create user');
+    }
+
+    const newUser = await response.json();
+    users.value.push(newUser);
+    rows.value.push({
+      id: newUser.id,
+      name: newUser.username,
+      role: newUser.is_admin ? 'Admin' : 'User',
+      status: newUser.is_approved ? 'Approved' : 'Pending',
+    });
+
+    isCreateUserModalOpen.value = false;
+    newUserEmail.value = '';
   } catch (err) {
     error.value = err.message;
   }
