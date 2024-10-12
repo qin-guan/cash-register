@@ -55,7 +55,7 @@ async function fetchCategories() {
     const response = await fetch('/api/categories');
     if (response.ok) {
       const json = await response.json();
-      categories.value = json.map((category: { id: number, name: string }) => category.name);
+      categories.value = json.map((category: { id: number, name: string }) => category.name).sort();
     } else {
       console.error('Failed to fetch categories');
     }
