@@ -1,16 +1,19 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 export function useCategories() {
-  const categoriesByID = ref<{ id: number; name: string }[]>([]);
+  const categories = ref<{ id: number; name: string }[]>([]);
+  const categoriesByID = computed(() => 
+    categories.value.slice().sort((a, b) => a.id > b.id)
+  );
   const categoriesByName = computed(() => 
-    categoriesByID.value.slice().sort((a, b) => a.name > b.name).map(cat => cat.name)
+    categories.value.slice().sort((a, b) => a.name > b.name)
   );
 
   async function fetchCategories() {
     try {
       const response = await fetch('/api/categories');
       if (response.ok) {
-        categoriesByID.value = await response.json();
+        categories.value = await response.json();
       } else {
         console.error('Failed to fetch categories');
       }
@@ -31,7 +34,7 @@ export function useCategories() {
 
       if (response.ok) {
         const addedCategory = await response.json();
-        categoriesByID.value.push(addedCategory);
+        categories.value.push(addedCategory);
         return addedCategory;
       } else {
         const errorData = await response.json();
@@ -50,7 +53,7 @@ export function useCategories() {
       });
 
       if (response.ok) {
-        categoriesByID.value = categoriesByID.value.filter((category: Category) => category.id !== categoryId);
+        categories.value = categorie.value.filter((category: Category) => category.id !== categoryId);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.statusMessage || 'Failed to delete category');
@@ -73,9 +76,9 @@ export function useCategories() {
 
       if (response.ok) {
         const updatedCategory = await response.json();
-        const index = categoriesByID.value.findIndex((category: Category) => category.id === updatedCategory.id);
+        const index = categories.value.findIndex((category: Category) => category.id === updatedCategory.id);
         if (index !== -1) {
-          categoriesByID.value[index] = updatedCategory;
+          categories.value[index] = updatedCategory;
         }
         return updatedCategory;
       } else {

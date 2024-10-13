@@ -108,7 +108,7 @@ const chartTabItems = [
 const categoryOptions = computed(() => [
   { label: 'All Categories', value: '' },
   ...categoriesByName.value
-    .map(cat => ({ label: cat, value: cat }))
+    .map(cat => ({ label: cat.name, value: cat.name }))
 ]);
 
 const filteredEntries = computed(() => {
