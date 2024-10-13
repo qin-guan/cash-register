@@ -6,7 +6,6 @@
       </template>
       <ExpenseForm
         :expense="expense"
-        :categories="categories"
         submitButtonText="Update"
         @submit="$emit('save', $event)"
         @cancel="$emit('cancel')"

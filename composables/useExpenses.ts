@@ -4,7 +4,6 @@ import { defaultExpense } from './defaultExpense';
 export function useExpenses() {
   const expenses = ref([]);
   const entries = ref([]);
-  const categories = ref([]);
 
   async function fetchExpenses() {
     try {
@@ -23,20 +22,6 @@ export function useExpenses() {
       })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     } catch (error) {
       console.error('Error fetching expenses:', error);
-    }
-  }
-
-  async function fetchCategories() {
-    try {
-      const response = await fetch('/api/categories');
-      if (response.ok) {
-        const json = await response.json();
-        categories.value = json.map((category: { id: number, name: string }) => category.name);
-      } else {
-        console.error('Failed to fetch categories');
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
     }
   }
 
@@ -87,9 +72,7 @@ export function useExpenses() {
   return {
     expenses,
     entries,
-    categories,
     fetchExpenses,
-    fetchCategories,
     updateExpense,
     deleteExpense
   };

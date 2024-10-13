@@ -5,7 +5,7 @@
         <UInput type="date" id="date" v-model="expenseData.date" required />
       </UFormGroup>
       <UFormGroup label="Category" name="category">
-        <USelectMenu v-model="expenseData.category" :options="categories" id="category" required />
+        <USelectMenu v-model="expenseData.category" :options="categoryOptions" id="category" required />
       </UFormGroup>
       <UFormGroup label="Description" name="description">
         <UInput type="text" id="description" v-model="expenseData.description" required />
@@ -27,10 +27,15 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, onMounted } from 'vue';
 import { defaultExpense } from '../../composables/defaultExpense';
+import { useCategories } from '@/composables/useCategories';
+
+const {
+  categoriesByID,
+  fetchCategories,
+} = useCategories();
 
 const props = defineProps<{
   expense: Expense;
-  categories: string[];
   submitButtonText: string;
 }>();
 
@@ -44,25 +49,14 @@ const expenseData = ref<Expense>({
   ...props.expense
 });
 
-const categories = ref<string[]>(props.categories);
+const categoryOptions = computed(() => [
+  ...categoriesByID.value
+    .map(cat => cat.name )
+]);
 
 onMounted(async () => {
   await fetchCategories();
 });
-
-async function fetchCategories() {
-  try {
-    const response = await fetch('/api/categories');
-    if (response.ok) {
-      const json = await response.json();
-      categories.value = json.map((category: { id: number, name: string }) => category.name).sort();
-    } else {
-      console.error('Failed to fetch categories');
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
-}
 
 function handleSubmit() {
   if (validateExpense(expenseData.value)) {

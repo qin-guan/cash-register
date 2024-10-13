@@ -3,7 +3,7 @@
     <h2 class="page-title">Manage Categories</h2>
     
     <div class="categories-table">
-      <UTable :rows="categories" :columns="columns">
+      <UTable :rows="categoriesByID" :columns="columns">
         <template #actions-data="{ row }">
           <UDropdown :items="actions(row)">
             <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
@@ -15,7 +15,7 @@
     <UModal v-model="isEditModalOpen">
       <div class="edit-modal">
         <h3 class="modal-title">Edit Category</h3>
-        <UForm :state="editFormState" @submit="updateCategory" class="edit-form">
+        <UForm :state="editFormState" @submit="handleUpdateCategory" class="edit-form">
           <UFormGroup label="Category Name" name="name">
             <UInput v-model="editFormState.name" />
           </UFormGroup>
@@ -28,7 +28,7 @@
     </UModal>
 
     <div class="new-category-form">
-      <UForm :state="newCategoryState" @submit="addCategory">
+      <UForm :state="newCategoryState" @submit="handleAddCategory">
         <UFormGroup label="New Category" name="name">
           <UInput v-model="newCategoryState.name" placeholder="Enter new category name" />
         </UFormGroup>
@@ -40,13 +40,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useCategories } from '@/composables/useCategories';
 
-interface Category {
-  id: number;
-  name: string;
-}
+const { categoriesByID, fetchCategories, addCategory, deleteCategory, updateCategory } = useCategories();
 
-const categories = ref<Category[]>([]);
 const columns = [
   { key: 'id', label: 'ID' },
   { key: 'name', label: 'Name' },
@@ -72,94 +69,29 @@ function actions(row: Category) {
       {
         label: 'Delete',
         icon: 'i-heroicons-trash-20-solid',
-        click: () => deleteCategory(row.id),
+        click: () => handleDeleteCategory(row.id),
       },
     ],
   ];
 }
 
-async function fetchCategories() {
-  try {
-    const response = await fetch('/api/categories');
-    if (response.ok) {
-      categories.value = await response.json();
-    } else {
-      console.error('Failed to fetch categories');
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
+async function handleAddCategory() {
+  await addCategory(newCategoryState.value);
+  newCategoryState.value.name = '';
 }
 
-async function addCategory() {
-  try {
-    const response = await fetch('/api/categories', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: newCategoryState.value.name }),
-    });
-
-    if (response.ok) {
-      const addedCategory = await response.json();
-      categories.value.push(addedCategory);
-      newCategoryState.value.name = '';
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.statusMessage || 'Failed to add category');
-    }
-  } catch (error) {
-    alert('Failed to add category. Please try again.');
-  }
+async function handleDeleteCategory(categoryId: number) {
+  await deleteCategory(categoryId);
 }
 
-async function deleteCategory(categoryId: number) {
-  try {
-    const response = await fetch(`/api/categories/${categoryId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
-      categories.value = categories.value.filter(category => category.id !== categoryId);
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.statusMessage || 'Failed to delete category');
-    }
-  } catch (error) {
-    alert('Failed to delete category. Please try again.');
-  }
+async function handleUpdateCategory() {
+  await updateCategory(editFormState.value);
+  isEditModalOpen.value = false;
 }
 
 function startEditCategory(category: Category) {
   editFormState.value = { ...category };
   isEditModalOpen.value = true;
-}
-
-async function updateCategory() {
-  try {
-    const response = await fetch(`/api/categories/${editFormState.value.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: editFormState.value.name }),
-    });
-
-    if (response.ok) {
-      const updatedCategory = await response.json();
-      const index = categories.value.findIndex(category => category.id === updatedCategory.id);
-      if (index !== -1) {
-        categories.value[index] = updatedCategory;
-      }
-      isEditModalOpen.value = false;
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.statusMessage || 'Failed to update category');
-    }
-  } catch (error) {
-    alert('Failed to update category. Please try again.');
-  }
 }
 </script>
 

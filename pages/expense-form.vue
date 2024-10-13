@@ -3,7 +3,6 @@
     <h3 class="page-title">Add New Record</h3>
     <ExpenseForm 
       :expense="newExpense" 
-      :categories="categories" 
       submitButtonText="Submit" 
       @submit="addExpense" 
     />
@@ -16,12 +15,6 @@ import ExpenseForm from './components/ExpenseForm.vue';
 import { defaultExpense } from '../composables/defaultExpense';
 
 const newExpense = ref<Expense>({ ...defaultExpense });
-
-const categories = ref<string[]>([]);
-
-onMounted(async () => {
-  await fetchCategories();
-});
 
 async function addExpense(expense: Expense) {
   try {
@@ -49,19 +42,6 @@ async function addExpense(expense: Expense) {
   }
 }
 
-async function fetchCategories() {
-  try {
-    const response = await fetch('/api/categories');
-    if (response.ok) {
-      const json = await response.json();
-      categories.value = json.map((category: { id: number, name: string }) => category.name);
-    } else {
-      console.error('Failed to fetch categories');
-    }
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
-}
 </script>
 
 <style scoped>

@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useExpenses } from '@/composables/useExpenses';
+import { useCategories } from '@/composables/useCategories';
 import ExpenseFilters from './components/ExpenseFilters.vue';
 import IncomeExpenseChart from './components/IncomeExpenseChart.vue';
 import ExpensesByCategoryChart from './components/ExpensesByCategoryChart.vue';
@@ -63,12 +64,15 @@ import EditExpenseModal from './components/EditExpenseModal.vue';
 const {
   expenses,
   entries,
-  categories,
   fetchExpenses,
-  fetchCategories,
   updateExpense,
   deleteExpense
 } = useExpenses();
+
+const {
+  categoriesByName,
+  fetchCategories,
+} = useCategories();
 
 // Reactive variables
 const isEditModalOpen = ref(false);
@@ -103,7 +107,8 @@ const chartTabItems = [
 // Computed properties
 const categoryOptions = computed(() => [
   { label: 'All Categories', value: '' },
-  ...categories.value.map(cat => ({ label: cat, value: cat }))
+  ...categoriesByName.value
+    .map(cat => ({ label: cat, value: cat }))
 ]);
 
 const filteredEntries = computed(() => {
@@ -177,11 +182,11 @@ const pieChartData = computed(() => {
 watch([selectedPeriod, selectedCategory], applyFilters);
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
   checkMobile();
   window.addEventListener('resize', checkMobile);
-  fetchExpenses();
-  fetchCategories();
+  await fetchExpenses();
+  await fetchCategories();
 });
 
 // Functions
