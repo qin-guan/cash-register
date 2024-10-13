@@ -1,5 +1,0 @@
-#! /usr/bin/env bash
-
-for i in ./server/drizzle/*.sql; do
-  cat $i;
-done

@@ -1,0 +1,16 @@
+services:
+  cash-register:
+    build: .
+    restart: always
+    volumes:
+      - /Users/julianteh/Library/CloudStorage/OneDrive-Personal/Chillian/Cash-Register/data:/app/data
+    env_file: /Users/julianteh/Library/CloudStorage/OneDrive-Personal/Chillian/Cash-Register/data/cash-register.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cash-register.rule=Host(`expenses.tehj.io`)"
+    networks:
+      - homelab_default
+      
+networks:
+  homelab_default:
+    external: true

@@ -1,10 +1,9 @@
 <template>
-  <div class="dark:bg-neutral-900 h-screen">
-    <VitePwaManifest />
+  <UContainer>
+    <NuxtPwaManifest />
     <NuxtLoadingIndicator />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <UNotifications />
-  </div>
+  </UContainer>
 </template>

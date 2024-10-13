@@ -1,12 +1,36 @@
-import defaultTheme from 'tailwindcss/defaultTheme'
+import process from 'node:process'
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
+const sw = process.env.SW === 'true'
+
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  /* ssr: false, */
+  // typescript,
+  modules: ['@vite-pwa/nuxt', '@nuxt/ui', "@nuxt/fonts"],
+  css: [ '~/assets/css/global.css' ],
+  colorMode: {
+    preference: 'system', // default value of $colorMode.preference
+    fallback: 'dark', // fallback value if not system preference found
+    hid: 'nuxt-color-mode-script',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    classSuffix: '-mode',
+    storageKey: 'nuxt-color-mode'
+  },
+
+  fonts: {
+    defaults: {
+      weights: [600],
+    },
+  },
+
+  future: {
+    typescriptBundlerResolution: true,
+  },
 
   experimental: {
-    // https://github.com/unjs/nitro/issues/1844
-    appManifest: false,
+    payloadExtraction: true,
+    watcher: 'parcel',
   },
 
   nitro: {
@@ -15,53 +39,32 @@ export default defineNuxtConfig({
         target: 'esnext',
       },
     },
-    moduleSideEffects: ['lucia/polyfill/node'],
-  },
-
-  modules: [
-    '@vueuse/nuxt',
-    '@vite-pwa/nuxt',
-    '@nuxthq/ui',
-    '@nuxtjs/google-fonts',
-    '@nuxtjs/fontaine',
-  ],
-
-  build: {
-    transpile: [
-      'trpc-nuxt',
-    ],
-  },
-
-  tailwindcss: {
-    exposeConfig: true,
-    config: {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'Inter fallback', ...defaultTheme.fontFamily.sans],
-          },
-        },
-      },
+    prerender: {
+      routes: ['/'],
     },
   },
 
-  ui: {
-    icons: [
-      'tabler',
-    ],
+  imports: {
+    autoImport: true,
   },
 
-  googleFonts: {
-    families: {
-      Inter: [400, 600, 800],
-    },
+  appConfig: {
+    // you don't need to include this: only for testing purposes
+    buildDate: new Date().toISOString(),
+  },
+
+  vite: {
+    logLevel: 'info',
   },
 
   pwa: {
+    strategies: sw ? 'injectManifest' : 'generateSW',
+    srcDir: sw ? 'service-worker' : undefined,
+    filename: sw ? 'sw.ts' : undefined,
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Cash Register',
-      short_name: 'CashRegister',
+      name: 'Cash-Register',
+      short_name: 'Cash-Register',
       theme_color: '#ffffff',
       icons: [
         {
@@ -83,26 +86,25 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
     },
     client: {
       installPrompt: true,
+      // you don't need to include this: only for testing purposes
+      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: process.env.VITE_DEV_PWA === 'true',
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
       type: 'module',
     },
   },
 
-  runtimeConfig: {
-    dev: {
-      sqliteFileName: 'sqlite.db',
-    },
-  },
-
-  typescript: {
-    strict: true,
-  },
+  compatibilityDate: '2024-08-04',
 })

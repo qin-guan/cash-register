@@ -1,29 +1,8 @@
-# Nuxt dev/build outputs
-.output
-.nuxt
-.nitro
-.cache
-dist
-
-# Node dependencies
+pnpm-lock.yaml
 node_modules
 
-# Logs
-logs
-*.log
-
-# Misc
-.DS_Store
-.fleet
-.idea
-
-# Local env files
+.nuxt
+.output
 .env
-.env.*
-!.env.example
 
-# SQLite files
-*.db
-
-# ESLint
-.eslintcache
+data
