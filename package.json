@@ -30,7 +30,7 @@
     "@vueuse/core": "^10.5.0",
     "@vueuse/nuxt": "^10.5.0",
     "better-sqlite3": "^9.0.0",
-    "drizzle-kit": "^0.19.13",
+    "drizzle-kit": "^0.26.0",
     "drizzle-orm": "^0.28.6",
     "eslint": "^8.51.0",
     "framework7": "^8.3.0",
