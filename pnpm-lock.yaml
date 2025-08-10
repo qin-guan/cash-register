@@ -15,8 +15,8 @@ devDependencies:
     specifier: ^1.1.95
     version: 1.1.95
   '@lucia-auth/adapter-sqlite':
-    specifier: ^2.0.1
-    version: 2.0.1(better-sqlite3@9.0.0)(lucia@2.7.1)
+    specifier: ^3.0.0
+    version: 3.0.2(better-sqlite3@9.0.0)(lucia@2.7.1)
   '@nuxt/devtools':
     specifier: latest
     version: 0.8.3(nuxt@3.8.0)(rollup@2.79.1)(vite@4.5.0)
@@ -2315,12 +2315,13 @@ packages:
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
     dev: true
 
-  /@lucia-auth/adapter-sqlite@2.0.1(better-sqlite3@9.0.0)(lucia@2.7.1):
-    resolution: {integrity: sha512-yc7XQ4X3sWG1gyUGHqaXipJIkmvB4MOgJypnSMWy7Vjhn3AOCM2xw51xTs+dGpLOQIn2Laomg9xpmDM2/9tgqQ==}
+  /@lucia-auth/adapter-sqlite@3.0.2(better-sqlite3@9.0.0)(lucia@2.7.1):
+    resolution: {integrity: sha512-UlXpF+2UoFEdm1AsriJii5BOARwqko6SX29rQ8T8Za7rnjj9KLXLaRVQUgBhGmggAyvzCtguJ2+XOZDsfWm6Sw==}
+    deprecated: This package has been deprecated. Please see https://lucia-auth.com/lucia-v3/migrate.
     peerDependencies:
       '@libsql/client': ^0.3.0
-      better-sqlite3: 8.x - 9.x
-      lucia: ^2.0.0
+      better-sqlite3: 8.x - 11.x
+      lucia: 3.x
     peerDependenciesMeta:
       '@libsql/client':
         optional: true
@@ -4442,6 +4443,7 @@ packages:
 
   /acorn-import-assertions@1.9.0(acorn@8.10.0):
     resolution: {integrity: sha512-cmMwop9x+8KFhxvKrKfPYmN6/pKTYYHBqLa0DfvVZcKMJWNyWLnaqND7dx/qn66R7ewM1UX5XMaDVP5wlVTaVA==}
+    deprecated: package has been renamed to acorn-import-attributes
     peerDependencies:
       acorn: ^8
     dependencies:
@@ -11200,6 +11202,7 @@ packages:
   /source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
     dependencies:
       whatwg-url: 7.1.0
     dev: true
@@ -12996,6 +12999,7 @@ packages:
 
   /workbox-google-analytics@7.0.0:
     resolution: {integrity: sha512-MEYM1JTn/qiC3DbpvP2BVhyIH+dV/5BjHk756u9VbwuAhu0QHyKscTnisQuz21lfRpOwiS9z4XdqeVAKol0bzg==}
+    deprecated: It is not compatible with newer versions of GA starting with v4, as long as you are using GAv3 it should be ok, but the package is not longer being maintained
     dependencies:
       workbox-background-sync: 7.0.0
       workbox-core: 7.0.0
